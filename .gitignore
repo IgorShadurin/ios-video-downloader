@@ -1,0 +1,15 @@
+DerivedData/
+.DS_Store
+Pods/
+data/
+.build/
+simulator-*.png
+test_media/
+PLAN.md
+RESEARCH_NOTES.md
+TEST_STRATEGY.md
+prompt.txt
+
+
+*.xcuserstate
+xcuserdata/
