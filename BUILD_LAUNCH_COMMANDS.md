@@ -16,13 +16,13 @@ echo "$DEVICE_ID"
 ## 3) Build for the currently booted iPhone 17
 
 ```sh
-xcodebuild -project AwesomeApp.xcodeproj -scheme AwesomeApp -destination "id=$DEVICE_ID" build
+xcodebuild -project VideoDownloader.xcodeproj -scheme VideoDownloader -destination "id=$DEVICE_ID" build
 ```
 
 ## 4) Install and launch on that simulator
 
 ```sh
-APP_PATH=$(find "$HOME/Library/Developer/Xcode/DerivedData" -path '*/Build/Products/Debug-iphonesimulator/AwesomeApp.app' -print0 | xargs -0 ls -td | head -n 1)
+APP_PATH=$(find "$HOME/Library/Developer/Xcode/DerivedData" -path '*/Build/Products/Debug-iphonesimulator/VideoDownloader.app' -print0 | xargs -0 ls -td | head -n 1)
 
 xcrun simctl install "$DEVICE_ID" "$APP_PATH"
 xcrun simctl launch "$DEVICE_ID" org.video.ai.VideoDownloader
@@ -33,8 +33,8 @@ xcrun simctl launch "$DEVICE_ID" org.video.ai.VideoDownloader
 ```sh
 set -euo pipefail
 DEVICE_ID=$(xcrun simctl list devices booted | awk -F '[()]' '/iPhone 17 .*Booted/ {print $2; exit}')
-xcodebuild -project AwesomeApp.xcodeproj -scheme AwesomeApp -destination "id=$DEVICE_ID" build
-APP_PATH=$(find "$HOME/Library/Developer/Xcode/DerivedData" -path '*/Build/Products/Debug-iphonesimulator/AwesomeApp.app' -print0 | xargs -0 ls -td | head -n 1)
+xcodebuild -project VideoDownloader.xcodeproj -scheme VideoDownloader -destination "id=$DEVICE_ID" build
+APP_PATH=$(find "$HOME/Library/Developer/Xcode/DerivedData" -path '*/Build/Products/Debug-iphonesimulator/VideoDownloader.app' -print0 | xargs -0 ls -td | head -n 1)
 xcrun simctl install "$DEVICE_ID" "$APP_PATH"
 xcrun simctl launch "$DEVICE_ID" org.video.ai.VideoDownloader
 ```
@@ -42,5 +42,5 @@ xcrun simctl launch "$DEVICE_ID" org.video.ai.VideoDownloader
 ## 6) Capture build log
 
 ```sh
-set -o pipefail && xcodebuild -project AwesomeApp.xcodeproj -scheme AwesomeApp -destination 'platform=iOS Simulator,name=iPhone 17' build 2>&1 | tee /tmp/xcodebuild.log
+set -o pipefail && xcodebuild -project VideoDownloader.xcodeproj -scheme VideoDownloader -destination 'platform=iOS Simulator,name=iPhone 17' build 2>&1 | tee /tmp/xcodebuild.log
 ```

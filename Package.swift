@@ -12,7 +12,7 @@ let package = Package(
     targets: [
         .target(
             name: "CompressionPlanner",
-            path: "AwesomeApp/CompressionPlanner"
+            path: "VideoDownloader/CompressionPlanner"
         ),
         .testTarget(
             name: "CompressionPlannerTests",
