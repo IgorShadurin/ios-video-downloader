@@ -1,0 +1,1 @@
+descarregavídeo,baixadorvídeo,reproductor,mp4,m3u8,navegador,caixaforta,vídeohd,playlist,velocitat

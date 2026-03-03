@@ -1,0 +1,66 @@
+Lưu trữ video bạn quan tâm, sắp xếp theo cách riêng và giữ nội dung riêng tư thực sự an toàn.
+
+Tải Video và Lưu là công cụ đơn giản, đáng tin cậy để thu thập video trực tuyến nhằm xem ngoại tuyến. Tải video từ các liên kết được hỗ trợ, xem không cần chờ đợi và xây dựng thư viện luôn sẵn sàng khi kết nối mạng yếu, đắt đỏ hoặc không có.
+
+Xây dựng cho tốc độ hàng ngày, ứng dụng giúp bạn chuyển từ "tìm thấy" sang "đã lưu" trong vài giây:
+- Dán liên kết và bắt đầu tải xuống nhanh
+- Theo dõi tiến trình tải đang hoạt động
+- Tạm dừng và tiếp tục khi mạng thay đổi
+- Tiếp tục xem trong khi video mới đang xử lý
+- Lưu trữ tệp trong thư viện cục bộ có cấu trúc
+
+Đơn giản theo mặc định, mạnh mẽ khi cần:
+- Chọn chất lượng video dựa trên dung lượng lưu trữ và giới hạn dữ liệu
+- Đổi tên tệp để bộ sưu tập luôn dễ tìm
+- Sắp xếp theo ngày, kích thước hoặc thứ tự tùy chỉnh
+- Dùng thư mục tách biệt công việc, học tập, du lịch và giải trí
+- Loại bỏ bản trùng lặp và giải phóng dung lượng bằng vài thao tác
+
+Thiết kế cho cuộc sống ngoại tuyến:
+- Mở video ngay lập tức không cần chờ tải từ web
+- Xem lại hướng dẫn quan trọng trên chuyến bay hoặc khi di chuyển
+- Giữ bài học ngôn ngữ và clip đào tạo luôn sẵn sàng mọi lúc
+- Lưu video trẻ em trước các chuyến đi
+- Truy cập nội dung sử dụng nhiều nhất khi dữ liệu chuyển vùng bị giới hạn
+
+Bảo mật từ trong thiết kế:
+- Khoá nội dung nhạy cảm với tính năng bảo vệ tích hợp
+- Ẩn video tải về cá nhân khỏi truy cập ngẫu nhiên
+- Giữ tài liệu tham khảo quan trọng tách biệt với tệp công khai
+- Kiểm soát nội dung hiển thị và nội dung được bảo vệ
+
+Trải nghiệm phát video không làm phiền:
+- Điều khiển phát mượt mà để điều hướng nhanh
+- Tiếp tục từ nơi đã dừng lại
+- Tua nhanh tiện lợi cho video dài
+- Bố cục thân thiện để sử dụng bằng một tay
+
+Dành cho người sáng tạo, học sinh, nhóm làm việc và khách du lịch:
+- Người sáng tạo lưu trữ tài liệu tham khảo và clip truyền cảm hứng
+- Học sinh xây dựng bộ sưu tập học tập ngoại tuyến
+- Chuyên gia chuẩn bị sẵn tài liệu đào tạo cho cuộc họp
+- Khách du lịch tránh vùng không sóng và gói dữ liệu đắt đỏ
+
+Quy trình tải xuống đáng tin cậy:
+1. Thêm một hoặc nhiều liên kết được hỗ trợ
+2. Xem lại và bắt đầu tải xuống
+3. Để quá trình xử lý hoàn tất trong nền
+4. Mở, sắp xếp và bảo vệ phương tiện đã lưu
+
+Bạn toàn quyền kiểm soát bộ nhớ:
+- Xem nội dung nào chiếm dung lượng và dọn dẹp nhanh
+- Chỉ giữ lại những gì thực sự quan trọng
+- Lưu trữ và xóa tệp cũ mà không mất cấu trúc sắp xếp
+
+Tải Video và Lưu tập trung vào giá trị thực tiễn: lưu nhanh, phát ổn định, lưu trữ có tổ chức và truy cập riêng tư. Ứng dụng là công cụ lý tưởng cho ai muốn làm chủ nội dung video, biến trải nghiệm kỹ thuật số thành chủ động và thuận tiện hơn. Với giao diện trực quan, mọi thao tác từ tải về, phân loại đến quản lý đều dễ dàng. Bạn tự do xây dựng kho video cá nhân hoá, phục vụ học tập, công việc, giải trí mà không lệ thuộc kết nối mạng. Tính năng bảo mật mạnh đảm bảo kỷ niệm hay tài liệu quan trọng luôn an toàn. Tận hưởng tự do xem nội dung yêu thích bất cứ lúc nào, ở đâu, với chất lượng hình ảnh và âm thanh nguyên bản. Ứng dụng được tối ưu để tương thích rộng và mang lại hiệu suất tốt trên thiết bị của bạn.
+
+ĐĂNG KÝ:
+- Bạn có thể đăng ký gói theo tuần hoặc theo tháng.
+- Các tùy chọn đăng ký sẽ được gia hạn lần lượt mỗi 1 tuần hoặc 1 tháng.
+- Mỗi gói sẽ tự động gia hạn với cùng mức giá và thời hạn, trừ khi tắt tự động gia hạn ít nhất 24 giờ trước khi kỳ hiện tại kết thúc.
+- Thanh toán sẽ được tính vào Apple ID của bạn khi xác nhận mua.
+- Có thể quản lý đăng ký và tắt tự động gia hạn trong Cài đặt > Apple ID > Đăng ký sau khi mua.
+- Phần chưa sử dụng của thời gian dùng thử miễn phí (nếu có) sẽ bị mất khi bạn mua đăng ký.
+
+Điều khoản sử dụng: https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
+Quyền riêng tư: https://yumcut.com/mobile/privacy

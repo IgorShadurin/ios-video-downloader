@@ -1,0 +1,46 @@
+Video Downloader is designed for one practical job: save supported videos from direct links and keep them ready offline whenever you need them. Paste a link, start the download, and keep moving. The app is built for people who want a clean workflow instead of a complex editor: fast validation, clear progress, reliable file saving, and a library you can manage in seconds.
+
+Direct-link workflow keeps everything predictable. The app accepts supported video URL formats and validates the link before download. You see clear status updates while downloading and can cancel at any time. When the transfer completes, the file is verified and added to your local collection with metadata. If needed, rename the item for easier search, delete old files to free space, or organize your saved content around how you actually use it.
+
+How it works:
+1. Paste a direct video URL.
+2. Start download and monitor progress.
+3. Save the file to your local library.
+4. Play, rename, hide, unhide, or delete anytime.
+
+Core capabilities:
+- Direct URL downloads for supported video formats.
+- Smooth progress tracking with user-friendly status messages.
+- Cancel support during active downloads.
+- Local library management with rename and delete actions.
+- Hidden vault flow for private media.
+- Persistent storage of videos and entitlement state.
+- Purchase and restore support through StoreKit.
+
+Built for daily real-world use:
+- Save important videos before flights, commuting, or unstable network periods.
+- Keep tutorials, classes, and reference clips available without buffering.
+- Store personal media for offline viewing when mobile data is limited.
+- Build a focused library you control instead of relying on streaming availability.
+
+Privacy is part of the product design. You can move sensitive items into hidden storage and keep your visible list clean for everyday use. Access controls for hidden content and clear management actions help you separate public and private media in one app. The result is simple: quick access to everyday videos, protected handling for personal files, and less friction when switching between the two.
+
+Access model is straightforward. The app includes one free download per day for non-subscribers. Users who need more can unlock unlimited downloads with premium plans. Purchase state and restores are handled with standard Apple flows so usage remains transparent and predictable.
+
+For support and review teams:
+This app focuses on direct-link video downloading, offline availability, and simple media management with privacy controls. Main flows include URL input, validation, download, save, playback, library actions, hidden vault actions, purchases, and restore purchases. Subscription and legal details are listed below exactly as shown in the app.
+
+Interface clarity is intentional. The main screen keeps essential actions visible: link input, support hint, download button, status banner, and library. There is no timeline editing or multi-step wizard, so first-time users can start quickly and repeat users can finish tasks faster.
+
+Storage behavior is practical for everyday iOS usage. Files are saved locally and can be managed with rename, hide, unhide, and delete actions. This keeps your collection organized and reduces time spent searching through mixed media.
+
+SUBSCRIPTIONS:
+- You can subscribe to a weekly or monthly plan.
+- Subscription options renew every 1 week or 1 month respectively.
+- Each plan automatically renews for the same price and duration unless auto-renew is turned off at least 24 hours before the end of the current period.
+- Payment will be charged to your Apple ID at confirmation of purchase.
+- Subscriptions can be managed and auto-renewal can be turned off in Settings > Apple ID > Subscriptions after purchase.
+- Any unused portion of a free trial, if offered, is forfeited when you purchase a subscription.
+
+Terms of Use: https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
+Privacy: https://yumcut.com/mobile/privacy

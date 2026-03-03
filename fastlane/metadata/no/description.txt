@@ -1,0 +1,22 @@
+Lagre videoene du bryr deg om, organiser dem på din måte, og hold privat innhold virkelig privat. Last ned video og lagre er et rent og pålitelig verktøy for å samle nettvideoer til offline avspilling. Fang klipp fra støttede lenker, se uten buffring, og bygg et bibliotek som alltid er tilgjengelig når forbindelsen er svak, dyr eller utilgjengelig. Utviklet for hverdagslig hastighet, hjelper appen deg å gå fra «funnet» til «lagret» på sekunder. Lim inn en lenke og start nedlastning raskt, følg fremdriften for aktive nedlastinger, sett på pause og fortsett når nettverket endrer seg, og fortsett å se mens nye videoer behandles. Lagre filer i et strukturert lokalt bibliotek.
+
+Enkelt som standard, kraftfullt når det trengs. Velg videokvalitet basert på lagringsplass og databegrensninger, gi filer nye navn slik at samlingen forblir søkbar, sorter etter dato, størrelse eller egendefinert rekkefølge. Bruk mapper for å skille arbeid, læring, reise og underholdning, og fjern duplikater for å frigjøre plass raskt. Designet for offline-liv. Åpne videoer umiddelbart uten å vente på nettet, se viktige opplæringsvideoer på nytt under flyreiser og pendling. Ha språkleksjoner og treningsklipp tilgjengelige når som helst, lagre barnevideoer før reiser, og få tilgang til mye brukt innhold når roamingdata er begrenset.
+
+Privat etter design. Lås sensitivt media med innebygd beskyttelse, skjul personlige nedlastinger fra tilfeldig tilgang. Hold viktige referanser adskilt fra offentlige filer, og kontroller hva som forblir synlig og beskyttet. Avspillingsopplevelse som ikke kommer i veien. Jevne kontroller for rask navigering, fortsett der du slapp, rask spoling for lange videoer, og et layout for enkelthåndsbruk. Laget for skapere, studenter, team og reisende. Skapere kan arkivere referanser og inspirasjonsklipp, studenter kan bygge offline-studiesamlinger. Profesjonelle kan ha treningsmateriell klart til møter, og reisende kan unngå døde soner og dyre dataabonnementer.
+
+Pålitelig nedlastingsarbeidsflyt. Legg til en eller flere støttede lenker, gjennomgå og start nedlastning, la behandlingen fullføres i bakgrunnen. Åpne, organiser og beskytt det lagrede mediet. Du beholder kontrollen over lagringen. Se hva som tar plass og rydd opp raskt, behold kun det som betyr noe. Arkiver og fjern gamle filer uten å miste strukturen. Last ned video og lagre fokuserer på praktisk verdi: rask lagring, stabil avspilling, organisert lagring og privat tilgang.
+
+Appen tilbyr en intuitiv måte å håndtere digitale videoressurser på, uavhengig av nettverksforhold. Den er optimalisert for bruk i Norge, med støtte for lokale nettverkstilpasninger og forståelse for typiske dataforbruksmønstre. Verktøyet er utviklet for å imøtekomme behovene til moderne brukere som ønsker å ta eierskap til sitt digitale innhold, redusere avhengigheten av kontinuerlig nettilgang og beskytte personlig materiale. Gjennom kontinuerlige oppdateringer sikres kompatibilitet med skiftende nettstandarder, samtidig som kjernen i appen – pålitelighet og enkelhet – forblir uendret.
+
+Den lokale lagringsmodellen gir full transparens over hvor filene befinner seg, og muliggjør enkelt samarbeid med andre enheter eller skyjenester etter brukerens valg. Appens designprioriteringer reflekterer et klart fokus på
+
+ABONNEMENTER:
+- Du kan abonnere på en ukentlig eller månedlig plan.
+- Abonnementsalternativer fornyes hver henholdsvis 1 uke eller 1 måned.
+- Hver plan fornyes automatisk til samme pris og varighet, med mindre automatisk fornyelse slås av minst 24 timer før slutten av gjeldende periode.
+- Betaling belastes Apple ID-en din ved bekreftelse av kjøp.
+- Abonnementer kan administreres, og automatisk fornyelse kan slås av i Innstillinger > Apple ID > Abonnementer etter kjøp.
+- Ubrukt del av en gratis prøveperiode, hvis tilbudt, bortfaller når du kjøper et abonnement.
+
+Vilkår for bruk: https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
+Personvern: https://yumcut.com/mobile/privacy
