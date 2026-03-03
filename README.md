@@ -17,9 +17,9 @@ A focused iOS app for downloading supported videos from direct URLs, managing lo
 - Persistence of downloads, entitlements, and vault passcode.
 
 ## StoreKit IDs
-- `videodownloader_weekly`
-- `videodownloader_monthly`
-- `videodownloader_lifetime`
+- `org.icorpvideo.VideoDownloader.weekly`
+- `org.icorpvideo.VideoDownloader.monthly`
+- `org.icorpvideo.VideoDownloader.lifetime`
 
 ## Showcase
 <p>

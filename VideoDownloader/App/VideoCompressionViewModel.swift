@@ -296,6 +296,15 @@ final class VideoDownloaderViewModel: ObservableObject {
         isPaywallPresented = false
     }
 
+#if DEBUG
+    func debugResetLimitsForTesting() {
+        store.debugResetFreeDownloadsToday()
+        entitlements = store.loadEntitlements()
+        errorMessage = nil
+        statusMessage = "Debug: free download limit reset for today."
+    }
+#endif
+
     func purchase(plan: PurchasePlan) async -> String {
         guard let product = products[plan] else {
             return PurchaseError.unavailable.localizedDescription

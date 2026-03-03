@@ -25,7 +25,7 @@ xcodebuild -project VideoDownloader.xcodeproj -scheme VideoDownloader -destinati
 APP_PATH=$(find "$HOME/Library/Developer/Xcode/DerivedData" -path '*/Build/Products/Debug-iphonesimulator/VideoDownloader.app' -print0 | xargs -0 ls -td | head -n 1)
 
 xcrun simctl install "$DEVICE_ID" "$APP_PATH"
-xcrun simctl launch "$DEVICE_ID" org.video.ai.VideoDownloader
+xcrun simctl launch "$DEVICE_ID" org.icorpvideo.VideoDownloader
 ```
 
 ## 5) One-shot command (build + install + launch)
@@ -36,7 +36,7 @@ DEVICE_ID=$(xcrun simctl list devices booted | awk -F '[()]' '/iPhone 17 .*Boote
 xcodebuild -project VideoDownloader.xcodeproj -scheme VideoDownloader -destination "id=$DEVICE_ID" build
 APP_PATH=$(find "$HOME/Library/Developer/Xcode/DerivedData" -path '*/Build/Products/Debug-iphonesimulator/VideoDownloader.app' -print0 | xargs -0 ls -td | head -n 1)
 xcrun simctl install "$DEVICE_ID" "$APP_PATH"
-xcrun simctl launch "$DEVICE_ID" org.video.ai.VideoDownloader
+xcrun simctl launch "$DEVICE_ID" org.icorpvideo.VideoDownloader
 ```
 
 ## 6) Capture build log

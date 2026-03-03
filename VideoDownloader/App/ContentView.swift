@@ -1,5 +1,6 @@
 import AVKit
 import SwiftUI
+import UIKit
 
 struct ContentView: View {
     @StateObject private var viewModel = VideoDownloaderViewModel()
@@ -13,6 +14,9 @@ struct ContentView: View {
     @State private var showVaultSheet = false
     @State private var vaultPassword = ""
     @State private var showHidden = false
+#if DEBUG
+    @State private var isDebugResetDialogPresented = false
+#endif
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
@@ -98,6 +102,27 @@ struct ContentView: View {
         )) {
             paywallSheet
         }
+#if DEBUG
+        .background(
+            DebugShakeDetector {
+                if !isDebugResetDialogPresented {
+                    isDebugResetDialogPresented = true
+                }
+            }
+        )
+        .confirmationDialog(
+            "Debug: reset limits?",
+            isPresented: $isDebugResetDialogPresented,
+            titleVisibility: .visible
+        ) {
+            Button("Reset", role: .destructive) {
+                viewModel.debugResetLimitsForTesting()
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This is available only in Debug builds.")
+        }
+#endif
     }
 
     private var background: some View {
@@ -916,3 +941,50 @@ private struct PlayableVideo: Identifiable {
 #Preview {
     ContentView()
 }
+
+#if DEBUG
+private struct DebugShakeDetector: UIViewControllerRepresentable {
+    let onShake: () -> Void
+
+    func makeUIViewController(context: Context) -> DebugShakeViewController {
+        let controller = DebugShakeViewController()
+        controller.onShake = onShake
+        return controller
+    }
+
+    func updateUIViewController(_ uiViewController: DebugShakeViewController, context: Context) {
+        uiViewController.onShake = onShake
+    }
+}
+
+private final class DebugShakeViewController: UIViewController {
+    var onShake: (() -> Void)?
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view = UIView(frame: .zero)
+        view.backgroundColor = .clear
+        view.isUserInteractionEnabled = false
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        becomeFirstResponder()
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        resignFirstResponder()
+    }
+
+    override var canBecomeFirstResponder: Bool {
+        true
+    }
+
+    override func motionEnded(_ motion: UIEvent.EventSubtype, with event: UIEvent?) {
+        super.motionEnded(motion, with: event)
+        guard motion == .motionShake else { return }
+        onShake?()
+    }
+}
+#endif

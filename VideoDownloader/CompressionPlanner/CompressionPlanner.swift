@@ -91,11 +91,11 @@ public enum PurchasePlan: String, CaseIterable, Codable, Sendable {
     public var productIdentifier: String {
         switch self {
         case .weekly:
-            return "videodownloader_weekly"
+            return "org.icorpvideo.VideoDownloader.weekly"
         case .monthly:
-            return "videodownloader_monthly"
+            return "org.icorpvideo.VideoDownloader.monthly"
         case .lifetime:
-            return "videodownloader_lifetime"
+            return "org.icorpvideo.VideoDownloader.lifetime"
         }
     }
 

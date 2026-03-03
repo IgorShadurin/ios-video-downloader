@@ -56,6 +56,14 @@ final class VideoStorageStore {
         defaults.set(data, forKey: entitlementKey)
     }
 
+#if DEBUG
+    func debugResetFreeDownloadsToday() {
+        var entitlements = loadEntitlements()
+        entitlements.lastFreeDownloadAt = nil
+        saveEntitlements(entitlements)
+    }
+#endif
+
     func hasVaultPasscode() -> Bool {
         defaults.data(forKey: vaultKey) != nil
     }

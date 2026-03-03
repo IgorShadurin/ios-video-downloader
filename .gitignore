@@ -13,3 +13,6 @@ prompt.txt
 
 *.xcuserstate
 xcuserdata/
+.idea
+.swiftpm
+appstore
