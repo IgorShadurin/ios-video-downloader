@@ -537,20 +537,15 @@ struct ContentView: View {
                                     } label: {
                                         Label(L10n.tr("Compress"), systemImage: "arrow.up.right.square")
                                     }
-                                    Menu {
-                                        Button {
-                                            exportToGallery(video)
-                                        } label: {
-                                            Label(L10n.tr("Save to Gallery"), systemImage: "photo.on.rectangle")
-                                        }
-
-                                        Button {
-                                            exportToFiles(video)
-                                        } label: {
-                                            Label(L10n.tr("Save to Files"), systemImage: "folder")
-                                        }
+                                    Button {
+                                        exportToGallery(video)
                                     } label: {
-                                        Label(L10n.tr("Export"), systemImage: "square.and.arrow.up")
+                                        Label(L10n.tr("Save to Gallery"), systemImage: "photo.on.rectangle")
+                                    }
+                                    Button {
+                                        exportToFiles(video)
+                                    } label: {
+                                        Label(L10n.tr("Save to Files"), systemImage: "folder")
                                     }
                                     Button(role: .destructive) {
                                         videoPendingDeletion = video
@@ -602,7 +597,7 @@ struct ContentView: View {
             switch showcaseStep {
             case .videoMenuOpened:
                 VStack {
-                    showcasePrimaryMenuCard(showExportChevron: true)
+                    showcasePrimaryMenuCard(emphasizeExport: false)
                         .frame(width: 238)
                     Spacer()
                 }
@@ -611,13 +606,10 @@ struct ContentView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
                 .allowsHitTesting(false)
             case .exportMenuOpened:
-                ZStack(alignment: .topTrailing) {
-                    showcasePrimaryMenuCard(showExportChevron: false)
+                VStack {
+                    showcasePrimaryMenuCard(emphasizeExport: true)
                         .frame(width: 238)
-
-                    showcaseExportMenuCard
-                        .frame(width: 220)
-                        .offset(x: -244, y: 126)
+                    Spacer()
                 }
                 .padding(.top, 312)
                 .padding(.trailing, 20)
@@ -629,7 +621,7 @@ struct ContentView: View {
         }
     }
 
-    private func showcasePrimaryMenuCard(showExportChevron: Bool) -> some View {
+    private func showcasePrimaryMenuCard(emphasizeExport: Bool) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             showcaseMenuRow(icon: "eye.slash", title: L10n.tr("Hide"))
             showcaseMenuDivider
@@ -637,11 +629,9 @@ struct ContentView: View {
             showcaseMenuDivider
             showcaseMenuRow(icon: "arrow.up.right.square", title: L10n.tr("Compress"))
             showcaseMenuDivider
-            showcaseMenuRow(
-                icon: "square.and.arrow.up",
-                title: L10n.tr("Export"),
-                trailingSystemImage: showExportChevron ? "chevron.right" : "chevron.down"
-            )
+            showcaseMenuRow(icon: "photo.on.rectangle", title: L10n.tr("Save to Gallery"), isHighlighted: emphasizeExport)
+            showcaseMenuDivider
+            showcaseMenuRow(icon: "folder", title: L10n.tr("Save to Files"), isHighlighted: emphasizeExport)
             showcaseMenuDivider
             showcaseMenuRow(icon: "trash", title: L10n.tr("Delete"), isDestructive: true)
         }
@@ -657,29 +647,12 @@ struct ContentView: View {
         .shadow(color: Color.black.opacity(colorScheme == .dark ? 0.35 : 0.16), radius: 12, x: 0, y: 6)
     }
 
-    private var showcaseExportMenuCard: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            showcaseMenuRow(icon: "photo.on.rectangle", title: L10n.tr("Save to Gallery"))
-            showcaseMenuDivider
-            showcaseMenuRow(icon: "folder", title: L10n.tr("Save to Files"))
-        }
-        .padding(8)
-        .background(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .fill(Color(uiColor: .systemBackground))
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .stroke(Color.primary.opacity(0.08), lineWidth: 1)
-        )
-        .shadow(color: Color.black.opacity(colorScheme == .dark ? 0.35 : 0.16), radius: 10, x: 0, y: 5)
-    }
-
     private func showcaseMenuRow(
         icon: String,
         title: String,
         trailingSystemImage: String? = nil,
-        isDestructive: Bool = false
+        isDestructive: Bool = false,
+        isHighlighted: Bool = false
     ) -> some View {
         HStack(spacing: 10) {
             Image(systemName: icon)
@@ -700,6 +673,10 @@ struct ContentView: View {
         .foregroundStyle(isDestructive ? Color.red : Color.primary)
         .padding(.horizontal, 10)
         .padding(.vertical, 9)
+        .background(
+            RoundedRectangle(cornerRadius: 9, style: .continuous)
+                .fill(isHighlighted ? accent.opacity(colorScheme == .dark ? 0.20 : 0.12) : Color.clear)
+        )
     }
 
     private var showcaseMenuDivider: some View {
