@@ -14,7 +14,7 @@ final class VideoDownloaderViewModel: ObservableObject {
 
     @Published var sourceURLText: String = ""
     @Published private(set) var state: State = .idle
-    @Published private(set) var statusMessage: String = "Paste a direct video link and tap Download."
+    @Published private(set) var statusMessage: String = L10n.tr("Paste a direct video link and tap Download.")
     @Published private(set) var errorMessage: String?
     @Published private(set) var downloadedVideos: [StoredVideo] = []
     @Published private(set) var entitlements: SubscriptionEntitlementState
@@ -85,28 +85,28 @@ final class VideoDownloaderViewModel: ObservableObject {
 
     var subscriptionText: String {
         if entitlements.hasLifetime {
-            return "Lifetime unlocked"
+            return L10n.tr("Forever")
         }
         if entitlements.hasMonthly {
-            return "Monthly active"
+            return L10n.tr("Monthly")
         }
         if entitlements.hasWeekly {
-            return "Weekly active"
+            return L10n.tr("Weekly")
         }
 
         let downloadDecision = accessPolicy.evaluate(entitlements: entitlements)
         let hideDecision = accessPolicy.evaluateHide(entitlements: entitlements)
 
         if downloadDecision.requiresPaywall && hideDecision.requiresPaywall {
-            return "Daily free limits reached"
+            return L10n.tr("Daily free limit reached.")
         }
         if !downloadDecision.requiresPaywall && !hideDecision.requiresPaywall {
-            return "1 free download + 1 hide daily"
+            return L10n.tr("Free plan allows only 1 usage per day. Upgrade for unlimited usage.")
         }
         if downloadDecision.requiresPaywall {
-            return "1 free hide remaining today"
+            return L10n.tr("One usage left today.")
         }
-        return "1 free download remaining today"
+        return L10n.tr("One usage left today.")
     }
 
     var isDownloading: Bool {
@@ -122,7 +122,7 @@ final class VideoDownloaderViewModel: ObservableObject {
 
     func validateSource() -> SupportedFormat? {
         guard let url = resolverURL else {
-            errorMessage = "Invalid URL format."
+            errorMessage = nil
             return nil
         }
 
@@ -146,19 +146,19 @@ final class VideoDownloaderViewModel: ObservableObject {
         let accessDecision = accessPolicy.evaluate(entitlements: entitlements)
         if !accessDecision.isAllowed {
             openPaywall()
-            errorMessage = "Daily free limit reached. Upgrade to continue."
+            errorMessage = L10n.tr("Daily free limit reached.")
             return
         }
 
         let fileName = makeFileName(from: sourceURL, format: format)
 
         state = .validating
-        statusMessage = "Validating source URL..."
+        statusMessage = L10n.tr("Checking format compatibility...")
         errorMessage = nil
 
         do {
             state = .downloading(progress: 0)
-            statusMessage = "Downloading..."
+            statusMessage = L10n.tr("Processing...")
 
             let downloadedURL = try await downloadService.download(from: sourceURL, fileName: fileName) { [weak self] value in
                 Task { @MainActor in
@@ -168,7 +168,7 @@ final class VideoDownloaderViewModel: ObservableObject {
             }
 
             state = .saving
-            statusMessage = "Verifying media..."
+            statusMessage = L10n.tr("Processing...")
 
             let metadata = try await metadataInspector.inspect(url: downloadedURL)
             let fileSize = try metadataInspector.inspectFileSize(url: downloadedURL)
@@ -188,7 +188,7 @@ final class VideoDownloaderViewModel: ObservableObject {
             downloadedVideos.insert(entry, at: 0)
             saveVideos()
             sourceURLText = ""
-            statusMessage = "Download completed."
+            statusMessage = L10n.tr("Done.")
 
             if accessDecision.shouldRecordFreeDownload {
                 entitlements = accessPolicy.recordFreeDownloadIfNeeded(
@@ -203,9 +203,9 @@ final class VideoDownloaderViewModel: ObservableObject {
             try? FileManager.default.removeItem(at: DownloadDirectory.shared.videoDirectory.appendingPathComponent(fileName))
 
             if let error = error as? VideoDownloadServiceError, case .cancelled = error {
-                statusMessage = "Download canceled."
+                statusMessage = L10n.tr("Conversion cancelled.")
             } else {
-                statusMessage = "Download failed."
+                statusMessage = L10n.tr("Conversion failed.")
                 errorMessage = error.localizedDescription
             }
             state = .idle
@@ -215,7 +215,7 @@ final class VideoDownloaderViewModel: ObservableObject {
     func cancelDownload() {
         downloadService.cancel()
         state = .idle
-        statusMessage = "Download canceled by user."
+        statusMessage = L10n.tr("Conversion cancelled.")
     }
 
     func delete(_ video: StoredVideo) {
@@ -228,7 +228,7 @@ final class VideoDownloaderViewModel: ObservableObject {
         let hideDecision = accessPolicy.evaluateHide(entitlements: entitlements)
         guard hideDecision.isAllowed else {
             openPaywall()
-            errorMessage = "Daily free hide limit reached. Upgrade to continue."
+            errorMessage = L10n.tr("Daily free limit reached.")
             return
         }
 
@@ -270,11 +270,11 @@ final class VideoDownloaderViewModel: ObservableObject {
     func submitVaultPasscode() {
         let passcode = vaultPasscodeInput.trimmed()
         guard !passcode.isEmpty else {
-            vaultStatusMessage = "Passcode cannot be empty."
+            vaultStatusMessage = nil
             return
         }
         guard passcode.count >= 4 else {
-            vaultStatusMessage = "Passcode must be at least 4 characters."
+            vaultStatusMessage = nil
             return
         }
 
@@ -291,7 +291,7 @@ final class VideoDownloaderViewModel: ObservableObject {
             vaultStatusMessage = nil
             vaultPasscodeInput = ""
         } else {
-            vaultStatusMessage = "Incorrect passcode."
+            vaultStatusMessage = L10n.tr("Incorrect passcode.")
         }
     }
 
@@ -324,7 +324,68 @@ final class VideoDownloaderViewModel: ObservableObject {
         store.debugResetDailyFreeLimits()
         entitlements = store.loadEntitlements()
         errorMessage = nil
-        statusMessage = "Debug: daily free limits reset."
+        statusMessage = L10n.tr("Debug: free conversion limit reset for today.")
+    }
+
+    func debugApplyShowcase(
+        sourceURL: String,
+        state: State,
+        videos: [StoredVideo],
+        hasVaultPasscode: Bool,
+        isVaultUnlocked: Bool
+    ) {
+        sourceURLText = sourceURL
+        self.state = state
+        downloadedVideos = videos
+        self.isVaultUnlocked = isVaultUnlocked
+        vaultPasscodeInput = ""
+        vaultStatusMessage = nil
+        errorMessage = nil
+
+        switch state {
+        case .idle:
+            statusMessage = L10n.tr("Paste a direct video link and tap Download.")
+        case .validating:
+            statusMessage = L10n.tr("Checking format compatibility...")
+        case .downloading:
+            statusMessage = L10n.tr("Processing...")
+        case .saving:
+            statusMessage = L10n.tr("Processing...")
+        }
+
+        if hasVaultPasscode {
+            store.setVaultPasscode("1234")
+        } else {
+            store.clearVaultPasscode()
+        }
+    }
+
+    func debugMakeShowcaseVideos(totalCount: Int, hiddenCount: Int) -> [StoredVideo] {
+        let count = max(0, totalCount)
+        let hidden = max(0, min(hiddenCount, count))
+        var videos: [StoredVideo] = []
+        videos.reserveCapacity(count)
+
+        for index in 0..<count {
+            let video = StoredVideo(
+                sourceURL: "https://yumcut.com/download-demo/six-seven-demo.MP4",
+                localFileName: "showcase_video_\(index + 1).mp4",
+                title: "Video \(index + 1)",
+                createdAt: Date().addingTimeInterval(-Double(index) * 900),
+                formatIdentifier: "mp4",
+                fileSizeBytes: Int64(12_000_000 + (index * 1_800_000)),
+                metadata: VideoMediaMetadata(
+                    durationSeconds: 40 + Double(index * 12),
+                    width: 1080,
+                    height: 1920,
+                    codec: "h264"
+                ),
+                isHidden: index < hidden
+            )
+            videos.append(video)
+        }
+
+        return videos
     }
 #endif
 
@@ -377,7 +438,7 @@ final class VideoDownloaderViewModel: ObservableObject {
 
     func clearInput() {
         sourceURLText = ""
-        statusMessage = "Paste a direct video link and tap Download."
+        statusMessage = L10n.tr("Paste a direct video link and tap Download.")
         errorMessage = nil
     }
 
@@ -406,7 +467,7 @@ final class VideoDownloaderViewModel: ObservableObject {
         if !trimmed.isEmpty {
             return trimmed.replacingOccurrences(of: ".\(url.pathExtension)", with: "")
         }
-        return "Downloaded video"
+        return L10n.tr("New video")
     }
 
     private func makeFileName(from sourceURL: URL, format: SupportedFormat) -> String {

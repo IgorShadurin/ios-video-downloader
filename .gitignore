@@ -3,6 +3,7 @@ DerivedData/
 Pods/
 data/
 .build/
+build/
 simulator-*.png
 test_media/
 PLAN.md

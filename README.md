@@ -22,7 +22,133 @@ A focused iOS app for downloading supported videos from direct URLs, managing lo
 - `org.icorpvideo.VideoDownloader.lifetime`
 
 ## Showcase
-<p>
-  <img src="showcase/main_light.png" alt="Main screen - Light mode" width="260" />
-  <img src="showcase/main_dark.png" alt="Main screen - Dark mode" width="260" />
-</p>
+Click any preview to open the high-quality screenshot.
+
+<table>
+  <tr>
+    <td align="center">
+      <a href="showcase/high/main-videos.png">
+        <img src="showcase/preview/main-videos.png" alt="Main screen with five videos (light)" width="200" />
+      </a>
+      <br />
+      <sub>Main Screen, 5 Videos (Light)</sub>
+    </td>
+    <td align="center">
+      <a href="showcase/high/demo-link.png">
+        <img src="showcase/preview/demo-link.png" alt="Demo link in input (light)" width="200" />
+      </a>
+      <br />
+      <sub>Demo Link In Input (Light)</sub>
+    </td>
+    <td align="center">
+      <a href="showcase/high/downloading-process.png">
+        <img src="showcase/preview/downloading-process.png" alt="Downloading process (light)" width="200" />
+      </a>
+      <br />
+      <sub>Downloading Process (Light)</sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <a href="showcase/high/video-menu-opened.png">
+        <img src="showcase/preview/video-menu-opened.png" alt="Video menu opened (light)" width="200" />
+      </a>
+      <br />
+      <sub>Video Menu Opened (Light)</sub>
+    </td>
+    <td align="center">
+      <a href="showcase/high/video-export-opened.png">
+        <img src="showcase/preview/video-export-opened.png" alt="Video export submenu opened (light)" width="200" />
+      </a>
+      <br />
+      <sub>Export Menu Opened (Light)</sub>
+    </td>
+    <td align="center">
+      <a href="showcase/high/rename-file.png">
+        <img src="showcase/preview/rename-file.png" alt="Rename file modal (light)" width="200" />
+      </a>
+      <br />
+      <sub>Rename File (Light)</sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <a href="showcase/high/vault-unlock-modal.png">
+        <img src="showcase/preview/vault-unlock-modal.png" alt="Vault unlock modal (light)" width="200" />
+      </a>
+      <br />
+      <sub>Vault Unlock Modal (Light)</sub>
+    </td>
+    <td align="center">
+      <a href="showcase/high/vault-unlocked-videos.png">
+        <img src="showcase/preview/vault-unlocked-videos.png" alt="Unlocked vault with videos (light)" width="200" />
+      </a>
+      <br />
+      <sub>Vault Unlocked (Light)</sub>
+    </td>
+    <td align="center">
+      <a href="showcase/high/main-videos-dark.png">
+        <img src="showcase/preview/main-videos-dark.png" alt="Main screen with five videos (dark)" width="200" />
+      </a>
+      <br />
+      <sub>Main Screen, 5 Videos (Dark)</sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <a href="showcase/high/demo-link-dark.png">
+        <img src="showcase/preview/demo-link-dark.png" alt="Demo link in input (dark)" width="200" />
+      </a>
+      <br />
+      <sub>Demo Link In Input (Dark)</sub>
+    </td>
+    <td align="center">
+      <a href="showcase/high/downloading-process-dark.png">
+        <img src="showcase/preview/downloading-process-dark.png" alt="Downloading process (dark)" width="200" />
+      </a>
+      <br />
+      <sub>Downloading Process (Dark)</sub>
+    </td>
+    <td align="center">
+      <a href="showcase/high/video-menu-opened-dark.png">
+        <img src="showcase/preview/video-menu-opened-dark.png" alt="Video menu opened (dark)" width="200" />
+      </a>
+      <br />
+      <sub>Video Menu Opened (Dark)</sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <a href="showcase/high/video-export-opened-dark.png">
+        <img src="showcase/preview/video-export-opened-dark.png" alt="Video export submenu opened (dark)" width="200" />
+      </a>
+      <br />
+      <sub>Export Menu Opened (Dark)</sub>
+    </td>
+    <td align="center">
+      <a href="showcase/high/rename-file-dark.png">
+        <img src="showcase/preview/rename-file-dark.png" alt="Rename file modal (dark)" width="200" />
+      </a>
+      <br />
+      <sub>Rename File (Dark)</sub>
+    </td>
+    <td align="center">
+      <a href="showcase/high/vault-unlock-modal-dark.png">
+        <img src="showcase/preview/vault-unlock-modal-dark.png" alt="Vault unlock modal (dark)" width="200" />
+      </a>
+      <br />
+      <sub>Vault Unlock Modal (Dark)</sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <a href="showcase/high/vault-unlocked-videos-dark.png">
+        <img src="showcase/preview/vault-unlocked-videos-dark.png" alt="Unlocked vault with videos (dark)" width="200" />
+      </a>
+      <br />
+      <sub>Vault Unlocked (Dark)</sub>
+    </td>
+    <td></td>
+    <td></td>
+  </tr>
+</table>

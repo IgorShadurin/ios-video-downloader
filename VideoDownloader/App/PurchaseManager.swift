@@ -75,7 +75,7 @@ final class PurchaseManager {
     private static let fallbackPriceByProductID: [String: String] = [
         weeklyProductID: "$0.99",
         monthlyProductID: "$2.99",
-        lifetimeProductID: "$29.99"
+        lifetimeProductID: "$29.90"
     ]
 
     func loadPlanOptions() async -> [PurchasePlanOption] {
@@ -101,7 +101,7 @@ final class PurchaseManager {
                     id: id,
                     title: title(for: id),
                     subtitle: subtitle(for: id),
-                    priceText: product.displayPrice,
+                    priceText: displayPrice(for: id, product: product),
                     isAvailable: true
                 )
             }
@@ -231,6 +231,13 @@ final class PurchaseManager {
 
     private func fallbackPrice(for productID: String) -> String {
         Self.fallbackPriceByProductID[productID] ?? "$0.00"
+    }
+
+    private func displayPrice(for productID: String, product: Product) -> String {
+        if productID == Self.lifetimeProductID {
+            return "$29.90"
+        }
+        return product.displayPrice
     }
 
     private func describeStoreKitError(_ error: Error) -> String {

@@ -9,6 +9,29 @@ struct ContentView: View {
         case vault
     }
 
+    private enum UIShowcaseStep: String {
+        case mainVideos = "main-videos"
+        case demoLink = "demo-link"
+        case downloadingProcess = "downloading-process"
+        case videoMenuOpened = "video-menu-opened"
+        case exportMenuOpened = "video-export-opened"
+        case renameFile = "rename-file"
+        case vaultUnlockModal = "vault-unlock-modal"
+        case vaultUnlockedVideos = "vault-unlocked-videos"
+    }
+
+    private static let showcaseStepArgument: UIShowcaseStep? = {
+        let args = ProcessInfo.processInfo.arguments
+        guard let keyIndex = args.firstIndex(of: "-uiShowcaseStep") else {
+            return nil
+        }
+        let valueIndex = args.index(after: keyIndex)
+        guard valueIndex < args.endIndex else {
+            return nil
+        }
+        return UIShowcaseStep(rawValue: args[valueIndex].lowercased())
+    }()
+
     @StateObject private var viewModel = VideoDownloaderViewModel()
     @State private var selectedVideo: PlayableVideo?
     @State private var renameTitle: String = ""
@@ -22,6 +45,8 @@ struct ContentView: View {
     @State private var videoPendingDeletion: StoredVideo?
     @State private var vaultPassword = ""
     @State private var selectedLibraryTab: LibraryTab = .downloads
+    @State private var didApplyShowcaseStep = false
+    @State private var showcaseStep: UIShowcaseStep? = Self.showcaseStepArgument
 #if DEBUG
     @State private var isDebugResetDialogPresented = false
 #endif
@@ -56,9 +81,14 @@ struct ContentView: View {
                     .padding(.horizontal, 16)
                     .padding(.top, 12)
                 }
+
+                showcaseMenuOverlay
             }
-            .navigationTitle("Video Downloader")
+            .navigationTitle(L10n.tr("Download Video"))
             .navigationBarTitleDisplayMode(.inline)
+        }
+        .onAppear {
+            applyShowcaseStepIfNeeded()
         }
         .sheet(isPresented: $showRenameSheet) {
             renameSheet
@@ -75,7 +105,7 @@ struct ContentView: View {
                 }
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
-                        Button("Done") {
+                        Button(L10n.tr("Done")) {
                             selectedVideo = nil
                         }
                     }
@@ -96,11 +126,11 @@ struct ContentView: View {
                 FilesExportPicker(url: filesExportURL) { result in
                     switch result {
                     case .success:
-                        exportAlertMessage = "Video exported to Files."
+                        exportAlertMessage = L10n.tr("Video exported to Files.")
                     case .failure(let error as CocoaError) where error.code == .userCancelled:
                         break
                     case .failure(let error):
-                        exportAlertMessage = "Failed to export to Files: \(error.localizedDescription)"
+                        exportAlertMessage = L10n.fmt("Failed to save to Files: %@", error.localizedDescription)
                     }
                     self.filesExportURL = nil
                 }
@@ -116,7 +146,7 @@ struct ContentView: View {
         )) {
             paywallSheet
         }
-        .alert("Export", isPresented: Binding(
+        .alert(L10n.tr("Export"), isPresented: Binding(
             get: { exportAlertMessage != nil },
             set: { isPresented in
                 if !isPresented {
@@ -124,7 +154,7 @@ struct ContentView: View {
                 }
             }
         )) {
-            Button("OK", role: .cancel) {
+            Button(L10n.tr("OK"), role: .cancel) {
                 exportAlertMessage = nil
             }
         } message: {
@@ -143,7 +173,7 @@ struct ContentView: View {
         } message: {
             Text(L10n.tr("After reset, all hidden videos will be permanently deleted."))
         }
-        .alert("Delete this video?", isPresented: Binding(
+        .alert(L10n.tr("Delete"), isPresented: Binding(
             get: { videoPendingDeletion != nil },
             set: { isPresented in
                 if !isPresented {
@@ -151,17 +181,15 @@ struct ContentView: View {
                 }
             }
         )) {
-            Button("Delete", role: .destructive) {
+            Button(L10n.tr("Delete"), role: .destructive) {
                 if let videoPendingDeletion {
                     viewModel.delete(videoPendingDeletion)
                 }
                 videoPendingDeletion = nil
             }
-            Button("Cancel", role: .cancel) {
+            Button(L10n.tr("Cancel"), role: .cancel) {
                 videoPendingDeletion = nil
             }
-        } message: {
-            Text("This action cannot be undone.")
         }
         .onChange(of: scenePhase) { _, newPhase in
             if newPhase == .background, viewModel.isVaultUnlocked {
@@ -177,16 +205,16 @@ struct ContentView: View {
             }
         )
         .confirmationDialog(
-            "Debug: reset limits?",
+            L10n.tr("Debug: reset limits?"),
             isPresented: $isDebugResetDialogPresented,
             titleVisibility: .visible
         ) {
-            Button("Reset", role: .destructive) {
+            Button(L10n.tr("Reset"), role: .destructive) {
                 viewModel.debugResetLimitsForTesting()
             }
-            Button("Cancel", role: .cancel) {}
+            Button(L10n.tr("Cancel"), role: .cancel) {}
         } message: {
-            Text("This is available only in Debug builds.")
+            Text(L10n.tr("This is available only in Debug builds."))
         }
 #endif
     }
@@ -211,7 +239,7 @@ struct ContentView: View {
                             .fill(accent.opacity(0.14))
                     )
 
-                Text("Link to download")
+                Text(L10n.tr("Source"))
                     .font(.headline)
 
                 Spacer(minLength: 0)
@@ -224,8 +252,10 @@ struct ContentView: View {
                         systemImage: "crown"
                     )
                         .font(.system(size: 13, weight: .semibold))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
                         .padding(.vertical, 8)
-                        .padding(.horizontal, 12)
+                        .padding(.horizontal, 17)
                         .background(
                             Capsule().fill(viewModel.hasPaidAccess ? Color.green.opacity(0.22) : accent.opacity(0.18))
                         )
@@ -271,7 +301,7 @@ struct ContentView: View {
             .buttonStyle(.plain)
 
             HStack {
-                Text("Supported: \(viewModel.supportedFormatsText)")
+                Text(L10n.fmt("Detected: %@", viewModel.supportedFormatsText))
                     .font(.footnote)
                     .foregroundStyle(secondaryText)
                 Spacer()
@@ -282,7 +312,7 @@ struct ContentView: View {
                     Button(role: .destructive) {
                         viewModel.cancelDownload()
                     } label: {
-                        Label("Cancel", systemImage: "xmark.circle.fill")
+                        Label(L10n.tr("Cancel"), systemImage: "xmark.circle.fill")
                             .font(.headline.weight(.semibold))
                             .frame(maxWidth: .infinity)
                             .frame(height: 44)
@@ -299,7 +329,7 @@ struct ContentView: View {
                             await viewModel.downloadVideo()
                         }
                     } label: {
-                        Label("Download", systemImage: "arrow.down.circle.fill")
+                        Label(L10n.tr("Download"), systemImage: "arrow.down.circle.fill")
                             .font(.headline.weight(.semibold))
                             .frame(maxWidth: .infinity)
                             .frame(height: 44)
@@ -313,7 +343,7 @@ struct ContentView: View {
                 }
             }
 
-            Text("Paste a direct video link and tap Download.")
+            Text(L10n.tr("Paste a direct video link and tap Download."))
                 .font(.caption)
                 .foregroundStyle(secondaryText.opacity(0.88))
                 .padding(.leading, 2)
@@ -333,15 +363,15 @@ struct ContentView: View {
                 }
                 .padding(.bottom, 4)
 
-                Text("Downloading directly to local storage.")
+                Text(L10n.tr("Processed locally on this device."))
                     .font(.footnote)
                     .foregroundStyle(secondaryText)
             } else if case .validating = viewModel.state {
-                ProgressView("Validating source")
+                ProgressView(L10n.tr("Checking format compatibility..."))
             } else if case .saving = viewModel.state {
-                ProgressView("Finalizing video")
+                ProgressView(L10n.tr("Converting video..."))
             } else {
-                Text("Ready")
+                Text(L10n.tr("Ready"))
                     .font(.callout)
                     .foregroundStyle(secondaryText)
             }
@@ -357,13 +387,13 @@ struct ContentView: View {
             HStack(spacing: 8) {
                 libraryTabButton(
                     tab: .downloads,
-                    title: "My Downloads",
+                    title: L10n.tr("My Downloads"),
                     systemImage: "tray.full.fill"
                 )
 
                 libraryTabButton(
                     tab: .vault,
-                    title: "Vault",
+                    title: L10n.tr("Vault"),
                     systemImage: selectedLibraryTab == .vault ? "lock.open.fill" : "lock.fill"
                 )
             }
@@ -418,7 +448,7 @@ struct ContentView: View {
                 Button {
                     lockVaultAndReturnToDownloads()
                 } label: {
-                    Label("Lock Vault", systemImage: "lock.fill")
+                    Label(L10n.tr("Lock Vault"), systemImage: "lock.fill")
                         .font(.caption.weight(.semibold))
                         .padding(.horizontal, 10)
                         .padding(.vertical, 7)
@@ -442,26 +472,33 @@ struct ContentView: View {
                 ForEach(Array(videos.enumerated()), id: \.element.id) { index, video in
                     VStack(alignment: .leading, spacing: 6) {
                         HStack(spacing: 12) {
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(secondaryBackground)
-                                .frame(width: 62, height: 42)
-                                .overlay(
-                                    Image(systemName: "play.rectangle.fill")
-                                        .foregroundStyle(.secondary)
-                                )
+                            Button {
+                                selectedVideo = PlayableVideo(url: video.localURL)
+                            } label: {
+                                HStack(spacing: 12) {
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .fill(secondaryBackground)
+                                        .frame(width: 62, height: 42)
+                                        .overlay(
+                                            Image(systemName: "play.rectangle.fill")
+                                                .foregroundStyle(.secondary)
+                                        )
 
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(video.title)
-                                    .font(.subheadline.weight(.bold))
-                                    .lineLimit(1)
-                                Text("\(video.formatLabel) • \(video.resolutionText) • \(video.durationText)")
-                                    .font(.caption)
-                                    .foregroundStyle(secondaryText)
-                                    .lineLimit(1)
-                                Text(video.sizeText)
-                                    .font(.caption)
-                                    .foregroundStyle(secondaryText)
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(video.title)
+                                            .font(.subheadline.weight(.bold))
+                                            .lineLimit(1)
+                                        Text("\(video.formatLabel) • \(video.resolutionText) • \(video.durationText)")
+                                            .font(.caption)
+                                            .foregroundStyle(secondaryText)
+                                            .lineLimit(1)
+                                        Text(video.sizeText)
+                                            .font(.caption)
+                                            .foregroundStyle(secondaryText)
+                                    }
+                                }
                             }
+                            .buttonStyle(.plain)
 
                             Spacer()
 
@@ -479,41 +516,46 @@ struct ContentView: View {
                                         Button {
                                             viewModel.hide(video)
                                         } label: {
-                                            Label("Hide", systemImage: "eye.slash")
+                                            Label(L10n.tr("Hide"), systemImage: "eye.slash")
                                         }
                                         Button {
                                             renamingVideo = video
                                             renameTitle = video.title
                                             showRenameSheet = true
                                         } label: {
-                                            Label("Rename", systemImage: "pencil")
+                                            Label(L10n.tr("Rename"), systemImage: "pencil")
                                         }
                                     } else {
                                         Button {
                                             viewModel.unhide(video)
                                         } label: {
-                                            Label("Unhide", systemImage: "eye")
+                                            Label(L10n.tr("Unhide"), systemImage: "eye")
                                         }
+                                    }
+                                    Button {
+                                        openCompanionCompressorApp()
+                                    } label: {
+                                        Label(L10n.tr("Compress"), systemImage: "arrow.up.right.square")
                                     }
                                     Menu {
                                         Button {
                                             exportToGallery(video)
                                         } label: {
-                                            Label("To Gallery", systemImage: "photo.on.rectangle")
+                                            Label(L10n.tr("Save to Gallery"), systemImage: "photo.on.rectangle")
                                         }
 
                                         Button {
                                             exportToFiles(video)
                                         } label: {
-                                            Label("To Files", systemImage: "folder")
+                                            Label(L10n.tr("Save to Files"), systemImage: "folder")
                                         }
                                     } label: {
-                                        Label("Export", systemImage: "square.and.arrow.up")
+                                        Label(L10n.tr("Export"), systemImage: "square.and.arrow.up")
                                     }
                                     Button(role: .destructive) {
                                         videoPendingDeletion = video
                                     } label: {
-                                        Label("Delete", systemImage: "trash")
+                                        Label(L10n.tr("Delete"), systemImage: "trash")
                                     }
                                 } label: {
                                     Image(systemName: "ellipsis.circle")
@@ -536,11 +578,15 @@ struct ContentView: View {
                     .font(.title3)
                     .foregroundStyle(secondaryText.opacity(0.8))
 
-                Text(isVaultList ? "Vault is empty" : "No videos yet")
+                Text(L10n.tr("No videos selected yet."))
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(secondaryText)
 
-                Text(isVaultList ? "Hide a video from My Downloads to keep it here." : "Download a video using the link above.")
+                Text(
+                    isVaultList
+                        ? L10n.tr("Pick a video from your gallery to start.")
+                        : L10n.tr("Paste a direct video link and tap Download.")
+                )
                     .font(.footnote)
                     .foregroundStyle(secondaryText.opacity(0.9))
                     .multilineTextAlignment(.center)
@@ -548,6 +594,209 @@ struct ContentView: View {
             .frame(maxWidth: .infinity)
             .padding(.vertical, 22)
         }
+    }
+
+    @ViewBuilder
+    private var showcaseMenuOverlay: some View {
+        if let showcaseStep {
+            switch showcaseStep {
+            case .videoMenuOpened:
+                VStack {
+                    showcasePrimaryMenuCard(showExportChevron: true)
+                        .frame(width: 238)
+                    Spacer()
+                }
+                .padding(.top, 312)
+                .padding(.trailing, 20)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+                .allowsHitTesting(false)
+            case .exportMenuOpened:
+                ZStack(alignment: .topTrailing) {
+                    showcasePrimaryMenuCard(showExportChevron: false)
+                        .frame(width: 238)
+
+                    showcaseExportMenuCard
+                        .frame(width: 220)
+                        .offset(x: -244, y: 126)
+                }
+                .padding(.top, 312)
+                .padding(.trailing, 20)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+                .allowsHitTesting(false)
+            default:
+                EmptyView()
+            }
+        }
+    }
+
+    private func showcasePrimaryMenuCard(showExportChevron: Bool) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            showcaseMenuRow(icon: "eye.slash", title: L10n.tr("Hide"))
+            showcaseMenuDivider
+            showcaseMenuRow(icon: "pencil", title: L10n.tr("Rename"))
+            showcaseMenuDivider
+            showcaseMenuRow(icon: "arrow.up.right.square", title: L10n.tr("Compress"))
+            showcaseMenuDivider
+            showcaseMenuRow(
+                icon: "square.and.arrow.up",
+                title: L10n.tr("Export"),
+                trailingSystemImage: showExportChevron ? "chevron.right" : "chevron.down"
+            )
+            showcaseMenuDivider
+            showcaseMenuRow(icon: "trash", title: L10n.tr("Delete"), isDestructive: true)
+        }
+        .padding(8)
+        .background(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .fill(Color(uiColor: .systemBackground))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .stroke(Color.primary.opacity(0.08), lineWidth: 1)
+        )
+        .shadow(color: Color.black.opacity(colorScheme == .dark ? 0.35 : 0.16), radius: 12, x: 0, y: 6)
+    }
+
+    private var showcaseExportMenuCard: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            showcaseMenuRow(icon: "photo.on.rectangle", title: L10n.tr("Save to Gallery"))
+            showcaseMenuDivider
+            showcaseMenuRow(icon: "folder", title: L10n.tr("Save to Files"))
+        }
+        .padding(8)
+        .background(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .fill(Color(uiColor: .systemBackground))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .stroke(Color.primary.opacity(0.08), lineWidth: 1)
+        )
+        .shadow(color: Color.black.opacity(colorScheme == .dark ? 0.35 : 0.16), radius: 10, x: 0, y: 5)
+    }
+
+    private func showcaseMenuRow(
+        icon: String,
+        title: String,
+        trailingSystemImage: String? = nil,
+        isDestructive: Bool = false
+    ) -> some View {
+        HStack(spacing: 10) {
+            Image(systemName: icon)
+                .frame(width: 18)
+                .font(.subheadline.weight(.semibold))
+
+            Text(title)
+                .font(.subheadline)
+
+            Spacer(minLength: 8)
+
+            if let trailingSystemImage {
+                Image(systemName: trailingSystemImage)
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(Color.secondary)
+            }
+        }
+        .foregroundStyle(isDestructive ? Color.red : Color.primary)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 9)
+    }
+
+    private var showcaseMenuDivider: some View {
+        Divider()
+            .padding(.horizontal, 8)
+    }
+
+    private func applyShowcaseStepIfNeeded() {
+        guard !didApplyShowcaseStep else { return }
+        didApplyShowcaseStep = true
+        guard let showcaseStep else { return }
+
+#if DEBUG
+        let regularVideos = viewModel.debugMakeShowcaseVideos(totalCount: 5, hiddenCount: 0)
+        let mixedVideos = viewModel.debugMakeShowcaseVideos(totalCount: 6, hiddenCount: 3)
+
+        showRenameSheet = false
+        showVaultSheet = false
+        selectedLibraryTab = .downloads
+        vaultPassword = ""
+
+        switch showcaseStep {
+        case .mainVideos:
+            viewModel.debugApplyShowcase(
+                sourceURL: "",
+                state: .idle,
+                videos: regularVideos,
+                hasVaultPasscode: false,
+                isVaultUnlocked: false
+            )
+        case .demoLink:
+            viewModel.debugApplyShowcase(
+                sourceURL: "https://yumcut.com/download-demo/six-seven-demo.MP4",
+                state: .idle,
+                videos: regularVideos,
+                hasVaultPasscode: false,
+                isVaultUnlocked: false
+            )
+        case .downloadingProcess:
+            viewModel.debugApplyShowcase(
+                sourceURL: "https://yumcut.com/download-demo/six-seven-demo.MP4",
+                state: .downloading(progress: 0.42),
+                videos: regularVideos,
+                hasVaultPasscode: false,
+                isVaultUnlocked: false
+            )
+        case .videoMenuOpened:
+            viewModel.debugApplyShowcase(
+                sourceURL: "",
+                state: .idle,
+                videos: regularVideos,
+                hasVaultPasscode: false,
+                isVaultUnlocked: false
+            )
+        case .exportMenuOpened:
+            viewModel.debugApplyShowcase(
+                sourceURL: "",
+                state: .idle,
+                videos: regularVideos,
+                hasVaultPasscode: false,
+                isVaultUnlocked: false
+            )
+        case .renameFile:
+            viewModel.debugApplyShowcase(
+                sourceURL: "",
+                state: .idle,
+                videos: regularVideos,
+                hasVaultPasscode: false,
+                isVaultUnlocked: false
+            )
+            if let first = viewModel.visibleVideos.first {
+                renamingVideo = first
+                renameTitle = first.title
+                showRenameSheet = true
+            }
+        case .vaultUnlockModal:
+            viewModel.debugApplyShowcase(
+                sourceURL: "",
+                state: .idle,
+                videos: mixedVideos,
+                hasVaultPasscode: true,
+                isVaultUnlocked: false
+            )
+            showVaultSheet = true
+        case .vaultUnlockedVideos:
+            viewModel.debugApplyShowcase(
+                sourceURL: "",
+                state: .idle,
+                videos: mixedVideos,
+                hasVaultPasscode: true,
+                isVaultUnlocked: true
+            )
+            selectedLibraryTab = .vault
+        }
+#else
+        self.showcaseStep = nil
+#endif
     }
 
     private func openVaultTab() {
@@ -587,12 +836,16 @@ struct ContentView: View {
                                     .foregroundStyle(vaultIconForeground)
                             }
 
-                            Text(viewModel.hasVaultPasscode ? "Unlock Hidden Vault" : "Create Vault Passcode")
+                            Text(viewModel.hasVaultPasscode ? L10n.tr("Unlock Hidden Vault") : L10n.tr("Create Vault Passcode"))
                                 .font(.title3.weight(.bold))
                                 .multilineTextAlignment(.center)
                                 .foregroundStyle(vaultPrimaryText)
 
-                            Text(viewModel.hasVaultPasscode ? "Enter your passcode to view hidden videos." : "Create a passcode to protect hidden videos and unlock private access.")
+                            Text(
+                                viewModel.hasVaultPasscode
+                                    ? L10n.tr("Enter your passcode to view hidden videos.")
+                                    : L10n.tr("Create a passcode to protect hidden videos and unlock private access.")
+                            )
                                 .font(.subheadline)
                                 .foregroundStyle(vaultSecondaryText)
                                 .multilineTextAlignment(.center)
@@ -601,7 +854,7 @@ struct ContentView: View {
                         .padding(.top, 8)
 
                         VStack(alignment: .leading, spacing: 12) {
-                            Text("Passcode")
+                            Text(L10n.tr("Password"))
                                 .font(.subheadline.weight(.semibold))
                                 .foregroundStyle(vaultPrimaryText)
 
@@ -610,7 +863,7 @@ struct ContentView: View {
                                     .font(.subheadline.weight(.semibold))
                                     .foregroundStyle(vaultSecondaryText)
 
-                                SecureField("Enter passcode", text: $vaultPassword)
+                                SecureField(L10n.tr("Password"), text: $vaultPassword)
                                     .textInputAutocapitalization(.never)
                                     .autocorrectionDisabled()
                             }
@@ -645,7 +898,7 @@ struct ContentView: View {
                                 }
                             } label: {
                                 Label(
-                                    viewModel.hasVaultPasscode ? "Unlock Vault" : "Set Passcode",
+                                    viewModel.hasVaultPasscode ? L10n.tr("Unlock Vault") : L10n.tr("Set Passcode"),
                                     systemImage: viewModel.hasVaultPasscode ? "lock.open.fill" : "lock.badge.plus"
                                 )
                                     .font(.headline.weight(.semibold))
@@ -684,11 +937,11 @@ struct ContentView: View {
                     .padding(.bottom, 30)
                 }
             }
-            .navigationTitle("Hidden Vault")
+            .navigationTitle(L10n.tr("Hidden Vault"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Done") {
+                    Button(L10n.tr("Done")) {
                         vaultPassword = ""
                         showVaultSheet = false
                     }
@@ -699,32 +952,72 @@ struct ContentView: View {
 
     private var renameSheet: some View {
         NavigationStack {
-            VStack(spacing: 16) {
-                Text("Rename Download")
-                    .font(.headline)
-                TextField("New name", text: $renameTitle)
-                    .textFieldStyle(.roundedBorder)
-                    .padding(.horizontal)
+            ZStack {
+                LinearGradient(
+                    colors: [
+                        accent.opacity(colorScheme == .dark ? 0.18 : 0.10),
+                        Color.clear
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .ignoresSafeArea()
 
-                Button("Save") {
-                    if let video = renamingVideo {
-                        viewModel.rename(video, to: renameTitle)
+                VStack(spacing: 18) {
+                    Image(systemName: "pencil.circle.fill")
+                        .font(.system(size: 42))
+                        .foregroundStyle(accent)
+                        .padding(.top, 6)
+
+                    TextField(
+                        "",
+                        text: $renameTitle,
+                        prompt: Text(L10n.tr("Name"))
+                            .foregroundStyle(Color(uiColor: .placeholderText))
+                    )
+                    .autocorrectionDisabled()
+                    .textInputAutocapitalization(.words)
+                    .padding(.vertical, 12)
+                    .padding(.horizontal, 14)
+                    .background(
+                        RoundedRectangle(cornerRadius: 16, style: .continuous)
+                            .fill(Color(.secondarySystemBackground))
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16, style: .continuous)
+                            .stroke(Color.primary.opacity(0.08), lineWidth: 1)
+                    )
+
+                    Button {
+                        if let video = renamingVideo {
+                            viewModel.rename(video, to: renameTitle)
+                        }
+                        showRenameSheet = false
+                    } label: {
+                        Label(L10n.tr("Save"), systemImage: "checkmark.circle.fill")
+                            .font(.headline.weight(.semibold))
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 44)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                    .fill(accent)
+                            )
+                            .foregroundStyle(.white)
                     }
-                    showRenameSheet = false
-                }
-                .frame(maxWidth: .infinity)
-                .frame(height: 44)
-                .background(Capsule().fill(accent))
-                .foregroundStyle(.white)
-                .padding(.horizontal)
+                    .buttonStyle(.plain)
+                    .disabled(renameTitle.trimmed().isEmpty)
+                    .opacity(renameTitle.trimmed().isEmpty ? 0.55 : 1)
 
-                Spacer()
+                    Spacer(minLength: 0)
+                }
+                .padding(.horizontal, 16)
+                .padding(.top, 10)
             }
-            .navigationTitle("Rename")
+            .navigationTitle(L10n.tr("Rename"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Cancel") { showRenameSheet = false }
+                ToolbarItem(placement: .topBarLeading) {
+                    Button(L10n.tr("Cancel")) { showRenameSheet = false }
                 }
             }
         }
@@ -1085,6 +1378,10 @@ struct ContentView: View {
         URL(string: "https://apps.apple.com/account/subscriptions")
     }
 
+    private var companionCompressorAppStoreURL: URL? {
+        URL(string: "itms-apps://itunes.apple.com/app/id6759647731")
+    }
+
     @ViewBuilder
     private var manageSubscriptionsInlineButton: some View {
         Button {
@@ -1120,6 +1417,11 @@ struct ContentView: View {
         UIApplication.shared.open(url)
     }
 
+    private func openCompanionCompressorApp() {
+        guard let url = companionCompressorAppStoreURL else { return }
+        UIApplication.shared.open(url)
+    }
+
     private func exportToFiles(_ video: StoredVideo) {
         filesExportURL = video.localURL
     }
@@ -1128,7 +1430,7 @@ struct ContentView: View {
         Task {
             let authorization = await PHPhotoLibrary.requestAuthorization(for: .addOnly)
             guard authorization == .authorized || authorization == .limited else {
-                exportAlertMessage = "Photo Library access is required to export to Gallery."
+                exportAlertMessage = L10n.tr("Photo Library access is required to save the converted video.")
                 return
             }
 
@@ -1152,10 +1454,10 @@ struct ContentView: View {
                 }
 
                 try? fileManager.removeItem(at: temporaryURL)
-                exportAlertMessage = "Video exported to Gallery."
+                exportAlertMessage = L10n.tr("Saved to Photo Library.")
             } catch {
                 try? fileManager.removeItem(at: temporaryURL)
-                exportAlertMessage = "Failed to export to Gallery: \(error.localizedDescription)"
+                exportAlertMessage = L10n.fmt("Failed to save to Photo Library: %@", error.localizedDescription)
             }
         }
     }

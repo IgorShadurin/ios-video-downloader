@@ -8,11 +8,11 @@ public enum DownloadValidationError: Error, Equatable, LocalizedError {
     public var errorDescription: String? {
         switch self {
         case .missingOrInvalidURL:
-            return "Enter a valid direct video URL (http or https)."
+            return L10n.tr("Paste a direct video link and tap Download.")
         case .missingFileExtension:
-            return "The link must include a supported video file extension."
+            return L10n.tr("Selected format is not available for this source video.")
         case .unsupportedFormat(let value):
-            return "The format \(value) is not supported for iOS playback."
+            return L10n.fmt("%@ (unavailable for this video)", value.uppercased())
         }
     }
 }
@@ -110,22 +110,22 @@ public enum PurchasePlan: String, CaseIterable, Codable, Sendable {
     public var title: String {
         switch self {
         case .weekly:
-            return "Weekly"
+            return L10n.tr("Weekly")
         case .monthly:
-            return "Monthly"
+            return L10n.tr("Monthly")
         case .lifetime:
-            return "One-time"
+            return L10n.tr("One-time")
         }
     }
 
     public var subtitle: String {
         switch self {
         case .weekly:
-            return "Unlimited downloads for 7 days"
+            return L10n.tr("Unlimited usage, billed weekly")
         case .monthly:
-            return "Unlimited downloads for 30 days"
+            return L10n.tr("Unlimited usage, billed monthly")
         case .lifetime:
-            return "Unlimited downloads forever"
+            return L10n.tr("Unlimited usage forever")
         }
     }
 
@@ -136,7 +136,7 @@ public enum PurchasePlan: String, CaseIterable, Codable, Sendable {
         case .monthly:
             return "$2.99"
         case .lifetime:
-            return "$29.99"
+            return "$29.90"
         }
     }
 

@@ -35,15 +35,15 @@ enum VideoDownloadServiceError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .cancelled:
-            return "Download cancelled."
+            return L10n.tr("Conversion cancelled.")
         case .invalidHTTPResponse:
-            return "Server response is invalid."
+            return L10n.tr("Conversion failed.")
         case .invalidStatus(let code):
-            return "Download blocked by server: status \(code)."
+            return L10n.fmt("System export failed: %@", String(code))
         case .emptyDestination:
-            return "Unable to resolve download destination."
+            return L10n.tr("Conversion failed.")
         case .moveFailed:
-            return "Unable to store the downloaded file."
+            return L10n.tr("Failed to save to Files.")
         }
     }
 }

@@ -64,12 +64,12 @@ struct StoredVideo: Identifiable, Codable, Equatable {
     }
 
     var resolutionText: String {
-        metadata?.resolutionText ?? "Unknown"
+        metadata?.resolutionText ?? L10n.tr("Unavailable")
     }
 
     var durationText: String {
         guard let seconds = metadata?.durationSeconds, seconds > 0 else {
-            return "Unknown"
+            return L10n.tr("Unavailable")
         }
         return formatSeconds(seconds)
     }

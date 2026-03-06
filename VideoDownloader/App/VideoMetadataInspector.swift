@@ -57,7 +57,7 @@ enum MediaInspectionError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .noVideoTrack:
-            return "Downloaded file does not contain a video stream."
+            return L10n.tr("The selected file does not contain a video track.")
         }
     }
 }

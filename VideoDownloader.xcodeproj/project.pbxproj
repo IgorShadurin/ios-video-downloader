@@ -48,15 +48,16 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		525A4E8C2EB8E736007021B9 /* VideoDownloader */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 525A4E982EB8E738007021B9 /* Build configuration list for PBXNativeTarget "VideoDownloader" */;
-			buildPhases = (
-				525A4E892EB8E736007021B9 /* Sources */,
-				DC5526CC94074DC1ABB187E0 /* SwiftLint */,
-				525A4E8A2EB8E736007021B9 /* Frameworks */,
-				525A4E8B2EB8E736007021B9 /* Resources */,
-			);
+			525A4E8C2EB8E736007021B9 /* VideoDownloader */ = {
+				isa = PBXNativeTarget;
+				buildConfigurationList = 525A4E982EB8E738007021B9 /* Build configuration list for PBXNativeTarget "VideoDownloader" */;
+				buildPhases = (
+					F0A1B2C3D4E5F60718293A4B /* i18n Check */,
+					525A4E892EB8E736007021B9 /* Sources */,
+					DC5526CC94074DC1ABB187E0 /* SwiftLint */,
+					525A4E8A2EB8E736007021B9 /* Frameworks */,
+					525A4E8B2EB8E736007021B9 /* Resources */,
+				);
 			buildRules = (
 			);
 			dependencies = (
@@ -87,10 +88,58 @@
 			buildConfigurationList = 525A4E882EB8E736007021B9 /* Build configuration list for PBXProject "VideoDownloader" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
-			knownRegions = (
-				en,
-				Base,
-			);
+				knownRegions = (
+					en,
+					Base,
+					ar,
+					"ar-SA",
+					"bg-BG",
+					ca,
+					cs,
+					da,
+					de,
+					"de-DE",
+					el,
+					"en-AU",
+					"en-CA",
+					"en-GB",
+					"en-IN",
+					"en-US",
+					es,
+					"es-ES",
+					"es-MX",
+					fi,
+					fr,
+					"fr-CA",
+					"fr-FR",
+					he,
+					hi,
+					hr,
+					hu,
+					id,
+					it,
+					ja,
+					ko,
+					ms,
+					nb,
+					nl,
+					"nl-NL",
+					no,
+					pl,
+					"pt-BR",
+					"pt-PT",
+					ro,
+					ru,
+					sk,
+					sv,
+					th,
+					tr,
+					uk,
+					vi,
+					"zh-Hans",
+					"zh-Hant",
+					"zh-Hant-HK",
+				);
 			mainGroup = 525A4E842EB8E736007021B9;
 			minimizedProjectReferenceProxies = 1;
 			preferredProjectObjectVersion = 77;
@@ -114,6 +163,24 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		F0A1B2C3D4E5F60718293A4B /* i18n Check */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "i18n Check";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -euo pipefail\n\"${SRCROOT}/scripts/i18n-check.sh\" \"${SRCROOT}\" \"${SRCROOT}/i18n-length-limits.json\"\n";
+		};
 		DC5526CC94074DC1ABB187E0 /* SwiftLint */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
