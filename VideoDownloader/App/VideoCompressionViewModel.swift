@@ -12,22 +12,15 @@ final class VideoDownloaderViewModel: ObservableObject {
         case saving
     }
 
-    @Published var sourceURLText: String = {
-#if DEBUG
-        return "https://yumcut.com/3-720.mp4"
-#else
-        return ""
-#endif
-    }()
+    @Published var sourceURLText: String = ""
     @Published private(set) var state: State = .idle
     @Published private(set) var statusMessage: String = "Paste a direct video link and tap Download."
     @Published private(set) var errorMessage: String?
     @Published private(set) var downloadedVideos: [StoredVideo] = []
     @Published private(set) var entitlements: SubscriptionEntitlementState
     @Published private(set) var isPaywallPresented: Bool = false
-    @Published private(set) var products: [PurchasePlan: Product] = [:]
-    @Published private(set) var isProductsLoading = false
-    @Published private(set) var isRestoringPurchases = false
+    @Published private(set) var purchaseOptions: [PurchasePlanOption] = []
+    @Published private(set) var isPurchasingPlan: Bool = false
     @Published private(set) var isVaultUnlocked = false
     @Published var vaultPasscodeInput: String = ""
     @Published private(set) var vaultStatusMessage: String?
@@ -37,6 +30,7 @@ final class VideoDownloaderViewModel: ObservableObject {
     private let downloadService: VideoDownloadServiceProtocol
     private let metadataInspector = VideoMetadataInspector()
     private let accessPolicy = DownloadAccessPolicy()
+    private let purchaseManager = PurchaseManager()
 
     init(downloadService: VideoDownloadServiceProtocol? = nil) {
         self.downloadService = downloadService ?? VideoDownloadService()
@@ -45,8 +39,7 @@ final class VideoDownloaderViewModel: ObservableObject {
 
         sanitizePersistedCatalog()
         Task {
-            await loadProducts()
-            await refreshEntitlementsFromStoreKit()
+            await refreshMonetizationState()
         }
     }
 
@@ -64,7 +57,9 @@ final class VideoDownloaderViewModel: ObservableObject {
     }
 
     var resolverURL: URL? {
-        URL(string: sourceURLText.trimmed())
+        let trimmed = sourceURLText.trimmed()
+        guard !trimmed.isEmpty else { return nil }
+        return URL(string: trimmed)
     }
 
     var resolverFormat: SupportedFormat? {
@@ -99,12 +94,19 @@ final class VideoDownloaderViewModel: ObservableObject {
             return "Weekly active"
         }
 
-        let decision = accessPolicy.evaluate(entitlements: entitlements)
-        return decision.requiresPaywall ? "Daily quota reached" : "1 free download remaining"
-    }
+        let downloadDecision = accessPolicy.evaluate(entitlements: entitlements)
+        let hideDecision = accessPolicy.evaluateHide(entitlements: entitlements)
 
-    var plans: [PurchasePlanPresentation] {
-        PurchasePlan.allCases.map { PurchasePlanPresentation(plan: $0, product: products[$0]) }
+        if downloadDecision.requiresPaywall && hideDecision.requiresPaywall {
+            return "Daily free limits reached"
+        }
+        if !downloadDecision.requiresPaywall && !hideDecision.requiresPaywall {
+            return "1 free download + 1 hide daily"
+        }
+        if downloadDecision.requiresPaywall {
+            return "1 free hide remaining today"
+        }
+        return "1 free download remaining today"
     }
 
     var isDownloading: Bool {
@@ -143,7 +145,7 @@ final class VideoDownloaderViewModel: ObservableObject {
 
         let accessDecision = accessPolicy.evaluate(entitlements: entitlements)
         if !accessDecision.isAllowed {
-            isPaywallPresented = true
+            openPaywall()
             errorMessage = "Daily free limit reached. Upgrade to continue."
             return
         }
@@ -185,6 +187,7 @@ final class VideoDownloaderViewModel: ObservableObject {
             downloadedVideos.removeAll { $0.localFileName == fileName }
             downloadedVideos.insert(entry, at: 0)
             saveVideos()
+            sourceURLText = ""
             statusMessage = "Download completed."
 
             if accessDecision.shouldRecordFreeDownload {
@@ -219,21 +222,34 @@ final class VideoDownloaderViewModel: ObservableObject {
         downloadedVideos.removeAll { $0.id == video.id }
         try? FileManager.default.removeItem(at: video.localURL)
         saveVideos()
-        statusMessage = "Deleted \(video.title)."
     }
 
     func hide(_ video: StoredVideo) {
+        let hideDecision = accessPolicy.evaluateHide(entitlements: entitlements)
+        guard hideDecision.isAllowed else {
+            openPaywall()
+            errorMessage = "Daily free hide limit reached. Upgrade to continue."
+            return
+        }
+
         guard let index = downloadedVideos.firstIndex(where: { $0.id == video.id }) else { return }
         downloadedVideos[index].isHidden = true
         saveVideos()
-        statusMessage = "\(video.title) moved to hidden."
+        errorMessage = nil
+
+        if hideDecision.shouldRecordFreeDownload {
+            entitlements = accessPolicy.recordFreeHideIfNeeded(
+                decision: hideDecision,
+                current: entitlements
+            )
+            store.saveEntitlements(entitlements)
+        }
     }
 
     func unhide(_ video: StoredVideo) {
         guard let index = downloadedVideos.firstIndex(where: { $0.id == video.id }) else { return }
         downloadedVideos[index].isHidden = false
         saveVideos()
-        statusMessage = "\(video.title) unhidden."
     }
 
     func rename(_ video: StoredVideo, to title: String) {
@@ -243,14 +259,7 @@ final class VideoDownloaderViewModel: ObservableObject {
     }
 
     func requestUnlockVault() {
-        if !store.hasVaultPasscode() {
-            vaultStatusMessage = "Set a vault passcode before opening hidden videos."
-        } else if isVaultUnlocked {
-            isVaultUnlocked = false
-            vaultStatusMessage = nil
-        } else {
-            vaultStatusMessage = "Enter vault passcode."
-        }
+        vaultStatusMessage = nil
     }
 
     func lockVault() {
@@ -262,6 +271,10 @@ final class VideoDownloaderViewModel: ObservableObject {
         let passcode = vaultPasscodeInput.trimmed()
         guard !passcode.isEmpty else {
             vaultStatusMessage = "Passcode cannot be empty."
+            return
+        }
+        guard passcode.count >= 4 else {
+            vaultStatusMessage = "Passcode must be at least 4 characters."
             return
         }
 
@@ -282,14 +295,24 @@ final class VideoDownloaderViewModel: ObservableObject {
         }
     }
 
-    func clearVaultPasscode() {
+    func clearVaultPasscodeAndDeleteHiddenVideos() {
+        let hiddenVideos = downloadedVideos.filter(\.isHidden)
+        for hiddenVideo in hiddenVideos {
+            try? FileManager.default.removeItem(at: hiddenVideo.localURL)
+        }
+        downloadedVideos.removeAll(where: \.isHidden)
+        saveVideos()
+
         store.clearVaultPasscode()
         isVaultUnlocked = false
-        vaultStatusMessage = "Vault passcode removed."
+        vaultStatusMessage = nil
     }
 
     func openPaywall() {
         isPaywallPresented = true
+        Task {
+            await refreshMonetizationState()
+        }
     }
 
     func dismissPaywall() {
@@ -298,64 +321,58 @@ final class VideoDownloaderViewModel: ObservableObject {
 
 #if DEBUG
     func debugResetLimitsForTesting() {
-        store.debugResetFreeDownloadsToday()
+        store.debugResetDailyFreeLimits()
         entitlements = store.loadEntitlements()
         errorMessage = nil
-        statusMessage = "Debug: free download limit reset for today."
+        statusMessage = "Debug: daily free limits reset."
     }
 #endif
 
-    func purchase(plan: PurchasePlan) async -> String {
-        guard let product = products[plan] else {
-            return PurchaseError.unavailable.localizedDescription
-        }
+    func purchasePlan(planID: String) async {
+        guard !isPurchasingPlan else { return }
+
+        isPurchasingPlan = true
+        errorMessage = nil
 
         do {
-            let result = try await product.purchase()
-            switch result {
-            case .success(let verification):
-                let transaction = try checkVerified(verification)
-                await transaction.finish()
-                entitlements = accessPolicy.applyingPurchase(plan: plan, to: entitlements)
-                store.saveEntitlements(entitlements)
-                dismissPaywall()
-                return "Purchase completed."
-            case .userCancelled:
-                return "Purchase cancelled."
-            case .pending:
-                return "Purchase pending."
-            @unknown default:
-                return "Purchase incomplete."
+            let didPurchase = try await purchaseManager.purchase(productID: planID)
+            if didPurchase {
+                await refreshEntitlementsFromStoreKit()
+                if hasPaidAccess {
+                    statusMessage = L10n.tr("Premium unlocked. Unlimited usage enabled.")
+                    isPaywallPresented = false
+                }
             }
         } catch {
-            return error.localizedDescription
+            errorMessage = error.localizedDescription
         }
+
+        isPurchasingPlan = false
+        await refreshMonetizationState()
     }
 
-    func restorePurchases() async -> String {
-        isRestoringPurchases = true
-        defer { isRestoringPurchases = false }
+    func restorePurchases() async {
+        guard !isPurchasingPlan else { return }
 
-        var restored: Set<PurchasePlan> = []
+        isPurchasingPlan = true
+        errorMessage = nil
+
         do {
-            for await verification in Transaction.currentEntitlements {
-                let transaction = try checkVerified(verification)
-                guard let plan = PurchasePlan.from(productIdentifier: transaction.productID), transaction.revocationDate == nil else {
-                    continue
-                }
-                restored.insert(plan)
+            let hasRestoredAccess = try await purchaseManager.restorePurchases()
+            await refreshEntitlementsFromStoreKit()
+
+            if hasRestoredAccess && hasPaidAccess {
+                statusMessage = L10n.tr("Purchases restored. Unlimited usage enabled.")
+                isPaywallPresented = false
+            } else {
+                statusMessage = L10n.tr("No active purchases found.")
             }
         } catch {
-            return "Restore failed: \(error.localizedDescription)"
+            errorMessage = error.localizedDescription
         }
 
-        if restored.isEmpty {
-            return "No purchases to restore."
-        }
-
-        entitlements = accessPolicy.applyingRestore(restoredPlans: restored, to: entitlements)
-        store.saveEntitlements(entitlements)
-        return "Purchases restored."
+        isPurchasingPlan = false
+        await refreshMonetizationState()
     }
 
     func clearInput() {
@@ -397,58 +414,32 @@ final class VideoDownloaderViewModel: ObservableObject {
         return "\(host)_\(UUID().uuidString.prefix(8)).\(format.identifier)"
     }
 
-    private func loadProducts() async {
-        isProductsLoading = true
-        defer { isProductsLoading = false }
-
-        do {
-            let ids = Set(PurchasePlan.allCases.map(\.productIdentifier))
-            let fetched = try await Product.products(for: ids)
-            var dict: [PurchasePlan: Product] = [:]
-
-            for product in fetched {
-                if let plan = PurchasePlan.from(productIdentifier: product.id) {
-                    dict[plan] = product
-                }
-            }
-
-            products = dict
-        } catch {
-            products = [:]
-        }
+    private func refreshMonetizationState() async {
+        purchaseOptions = await purchaseManager.loadPlanOptions()
+        await refreshEntitlementsFromStoreKit()
     }
 
     private func refreshEntitlementsFromStoreKit() async {
         var restored: Set<PurchasePlan> = []
 
         for await verification in Transaction.currentEntitlements {
-            if let transaction = try? checkVerified(verification),
-               let plan = PurchasePlan.from(productIdentifier: transaction.productID),
-               transaction.revocationDate == nil {
+            guard case .verified(let transaction) = verification else {
+                continue
+            }
+            guard transaction.revocationDate == nil else {
+                continue
+            }
+            if let expirationDate = transaction.expirationDate,
+               expirationDate < Date()
+            {
+                continue
+            }
+            if let plan = PurchasePlan.from(productIdentifier: transaction.productID) {
                 restored.insert(plan)
             }
         }
 
-        if !restored.isEmpty {
-            entitlements = accessPolicy.applyingRestore(restoredPlans: restored, to: entitlements)
-            store.saveEntitlements(entitlements)
-        }
-    }
-
-    private func checkVerified<T>(_ result: VerificationResult<T>) throws -> T {
-        switch result {
-        case .unverified(_, let error):
-            throw error
-        case .verified(let value):
-            return value
-        }
-    }
-
-    private enum PurchaseError: LocalizedError {
-        case unavailable
-
-        var errorDescription: String? {
-            "Store item is unavailable."
-        }
+        entitlements = accessPolicy.applyingRestore(restoredPlans: restored, to: entitlements)
+        store.saveEntitlements(entitlements)
     }
 }

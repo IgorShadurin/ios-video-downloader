@@ -1,1 +1,0 @@
-videodownloader,gem videoer,offline afspiller,mp4,m3u8,hent video,privat boks,hd,playlist,hurtig

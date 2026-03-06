@@ -1,23 +1,32 @@
 import AVKit
+import Photos
 import SwiftUI
 import UIKit
 
 struct ContentView: View {
+    private enum LibraryTab {
+        case downloads
+        case vault
+    }
+
     @StateObject private var viewModel = VideoDownloaderViewModel()
     @State private var selectedVideo: PlayableVideo?
     @State private var renameTitle: String = ""
     @State private var renamingVideo: StoredVideo?
     @State private var showRenameSheet = false
-    @State private var selectedPurchasePlan: PurchasePlan = .monthly
-    @State private var paywallStatus: String?
-    @State private var isPurchasing = false
+    @State private var selectedPaywallPlanID: String?
     @State private var showVaultSheet = false
+    @State private var showForgetVaultConfirmation = false
+    @State private var filesExportURL: URL?
+    @State private var exportAlertMessage: String?
+    @State private var videoPendingDeletion: StoredVideo?
     @State private var vaultPassword = ""
-    @State private var showHidden = false
+    @State private var selectedLibraryTab: LibraryTab = .downloads
 #if DEBUG
     @State private var isDebugResetDialogPresented = false
 #endif
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
         NavigationStack {
@@ -26,37 +35,20 @@ struct ContentView: View {
 
                 ScrollView {
                     VStack(spacing: 18) {
-                        header
                         inputCard
 
                         if let errorMessage = viewModel.errorMessage {
                             statusBanner(text: errorMessage, tone: .red)
-                        } else {
-                            statusBanner(text: viewModel.statusMessage, tone: Color.accentColor)
                         }
 
                         if viewModel.state != .idle {
                             actionCard
                         }
 
-                        if !viewModel.visibleVideos.isEmpty {
-                            libraryCard(
-                                title: "My Downloads",
-                                videos: viewModel.visibleVideos,
-                                locked: false
-                            )
-                        }
+                        downloadsSection
 
-                        if viewModel.hasVaultPasscode {
-                            vaultControlCard
-                        }
-
-                        if showHidden && !viewModel.hiddenVideos.isEmpty {
-                            libraryCard(
-                                title: "Hidden Videos",
-                                videos: viewModel.hiddenVideos,
-                                locked: true
-                            )
+                        if viewModel.hasPaidAccess {
+                            manageSubscriptionsInlineButton
                         }
 
                         Spacer(minLength: 28)
@@ -93,6 +85,28 @@ struct ContentView: View {
             vaultSheet
         }
         .sheet(isPresented: Binding(
+            get: { filesExportURL != nil },
+            set: { isPresented in
+                if !isPresented {
+                    filesExportURL = nil
+                }
+            }
+        )) {
+            if let filesExportURL {
+                FilesExportPicker(url: filesExportURL) { result in
+                    switch result {
+                    case .success:
+                        exportAlertMessage = "Video exported to Files."
+                    case .failure(let error as CocoaError) where error.code == .userCancelled:
+                        break
+                    case .failure(let error):
+                        exportAlertMessage = "Failed to export to Files: \(error.localizedDescription)"
+                    }
+                    self.filesExportURL = nil
+                }
+            }
+        }
+        .sheet(isPresented: Binding(
             get: { viewModel.isPaywallPresented },
             set: { isPresented in
                 if !isPresented {
@@ -101,6 +115,58 @@ struct ContentView: View {
             }
         )) {
             paywallSheet
+        }
+        .alert("Export", isPresented: Binding(
+            get: { exportAlertMessage != nil },
+            set: { isPresented in
+                if !isPresented {
+                    exportAlertMessage = nil
+                }
+            }
+        )) {
+            Button("OK", role: .cancel) {
+                exportAlertMessage = nil
+            }
+        } message: {
+            Text(exportAlertMessage ?? "")
+        }
+        .alert(L10n.tr("Reset vault passcode?"), isPresented: $showForgetVaultConfirmation) {
+            Button(role: .destructive) {
+                viewModel.clearVaultPasscodeAndDeleteHiddenVideos()
+                selectedLibraryTab = .downloads
+                vaultPassword = ""
+                showVaultSheet = false
+            } label: {
+                Label(L10n.tr("Reset and Delete"), systemImage: "trash")
+            }
+            Button(L10n.tr("Cancel"), role: .cancel) {}
+        } message: {
+            Text(L10n.tr("After reset, all hidden videos will be permanently deleted."))
+        }
+        .alert("Delete this video?", isPresented: Binding(
+            get: { videoPendingDeletion != nil },
+            set: { isPresented in
+                if !isPresented {
+                    videoPendingDeletion = nil
+                }
+            }
+        )) {
+            Button("Delete", role: .destructive) {
+                if let videoPendingDeletion {
+                    viewModel.delete(videoPendingDeletion)
+                }
+                videoPendingDeletion = nil
+            }
+            Button("Cancel", role: .cancel) {
+                videoPendingDeletion = nil
+            }
+        } message: {
+            Text("This action cannot be undone.")
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            if newPhase == .background, viewModel.isVaultUnlocked {
+                lockVaultAndReturnToDownloads()
+            }
         }
 #if DEBUG
         .background(
@@ -133,40 +199,46 @@ struct ContentView: View {
         .ignoresSafeArea()
     }
 
-    private var header: some View {
-        HStack(spacing: 12) {
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Video Downloader")
-                    .font(.system(size: 30, weight: .bold, design: .rounded))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.72)
-                    .allowsTightening(true)
-                Text(viewModel.subscriptionText)
-                    .font(.callout.weight(.medium))
-                    .foregroundStyle(secondaryText)
-            }
-            Spacer()
-            Button {
-                viewModel.openPaywall()
-            } label: {
-                Label(viewModel.hasPaidAccess ? "Unlocked" : "Go Pro", systemImage: "crown")
-                    .font(.system(size: 13, weight: .semibold))
-                    .padding(.vertical, 8)
-                    .padding(.horizontal, 12)
-                    .background(
-                        Capsule().fill(viewModel.hasPaidAccess ? Color.green.opacity(0.22) : accent.opacity(0.18))
-                    )
-            }
-            .buttonStyle(.plain)
-        }
-    }
-
     private var inputCard: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Direct Link")
-                .font(.headline)
+            HStack(spacing: 10) {
+                Image(systemName: "play.rectangle.fill")
+                    .font(.title3.weight(.semibold))
+                    .foregroundStyle(accent)
+                    .frame(width: 34, height: 34)
+                    .background(
+                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                            .fill(accent.opacity(0.14))
+                    )
 
-            TextField("https://example.com/video.mp4", text: $viewModel.sourceURLText)
+                Text("Link to download")
+                    .font(.headline)
+
+                Spacer(minLength: 0)
+
+                Button {
+                    viewModel.openPaywall()
+                } label: {
+                    Label(
+                        viewModel.hasPaidAccess ? L10n.tr("Unlocked") : L10n.tr("Go Pro"),
+                        systemImage: "crown"
+                    )
+                        .font(.system(size: 13, weight: .semibold))
+                        .padding(.vertical, 8)
+                        .padding(.horizontal, 12)
+                        .background(
+                            Capsule().fill(viewModel.hasPaidAccess ? Color.green.opacity(0.22) : accent.opacity(0.18))
+                        )
+                }
+                .buttonStyle(.plain)
+            }
+
+            TextField(
+                "",
+                text: $viewModel.sourceURLText,
+                prompt: Text(verbatim: "https://example.com/video.mp4")
+                    .foregroundStyle(Color(uiColor: .placeholderText))
+            )
                 .autocorrectionDisabled()
                 .keyboardType(.URL)
                 .textInputAutocapitalization(.never)
@@ -177,6 +249,7 @@ struct ContentView: View {
                         }
                     }
                 }
+                .autocorrectionDisabled()
                 .padding(.vertical, 12)
                 .padding(.horizontal, 14)
                 .background(
@@ -188,9 +261,16 @@ struct ContentView: View {
                         .stroke(Color.primary.opacity(0.08), lineWidth: 1)
                 )
 
-            HStack {
-                Image(systemName: "checkmark.shield.fill")
+            Button {
+                viewModel.sourceURLText = "https://yumcut.com/download-demo/six-seven-demo.MP4"
+            } label: {
+                Text(L10n.tr("Use Demo Video URL"))
+                    .font(.subheadline.weight(.semibold))
                     .foregroundStyle(accent)
+            }
+            .buttonStyle(.plain)
+
+            HStack {
                 Text("Supported: \(viewModel.supportedFormatsText)")
                     .font(.footnote)
                     .foregroundStyle(secondaryText)
@@ -198,29 +278,14 @@ struct ContentView: View {
             }
 
             HStack(spacing: 12) {
-                Button {
-                    Task {
-                        await viewModel.downloadVideo()
-                    }
-                } label: {
-                    Label(viewModel.state == .downloading(progress: 0) ? "Downloading" : "Download", systemImage: "arrow.down.circle.fill")
-                        .font(.headline.weight(.semibold))
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 44)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                .fill(accent)
-                        )
-                        .foregroundStyle(.white)
-                }
-                .disabled(!viewModel.canDownload || viewModel.isDownloading)
-
                 if viewModel.isDownloading {
                     Button(role: .destructive) {
                         viewModel.cancelDownload()
                     } label: {
                         Label("Cancel", systemImage: "xmark.circle.fill")
-                            .frame(width: 98, height: 44)
+                            .font(.headline.weight(.semibold))
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 44)
                             .background(
                                 RoundedRectangle(cornerRadius: 12, style: .continuous)
                                     .strokeBorder(Color.red.opacity(0.6))
@@ -228,8 +293,30 @@ struct ContentView: View {
                             .foregroundStyle(.red)
                     }
                     .buttonStyle(.plain)
+                } else {
+                    Button {
+                        Task {
+                            await viewModel.downloadVideo()
+                        }
+                    } label: {
+                        Label("Download", systemImage: "arrow.down.circle.fill")
+                            .font(.headline.weight(.semibold))
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 44)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                    .fill(accent)
+                            )
+                            .foregroundStyle(.white)
+                    }
+                    .disabled(!viewModel.canDownload)
                 }
             }
+
+            Text("Paste a direct video link and tap Download.")
+                .font(.caption)
+                .foregroundStyle(secondaryText.opacity(0.88))
+                .padding(.leading, 2)
         }
         .padding(14)
         .background(cardBackground)
@@ -265,87 +352,26 @@ struct ContentView: View {
         .clipShape(RoundedRectangle(cornerRadius: 16))
     }
 
-    private func libraryCard(title: String, videos: [StoredVideo], locked: Bool) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Text(title)
-                    .font(.headline)
-                Spacer()
-                if locked {
-                    Button {
-                        showHidden.toggle()
-                    } label: {
-                        Label("Hide", systemImage: "eye.slash")
-                            .font(.footnote)
-                    }
-                    .buttonStyle(.plain)
-                }
+    private var downloadsSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 8) {
+                libraryTabButton(
+                    tab: .downloads,
+                    title: "My Downloads",
+                    systemImage: "tray.full.fill"
+                )
+
+                libraryTabButton(
+                    tab: .vault,
+                    title: "Vault",
+                    systemImage: selectedLibraryTab == .vault ? "lock.open.fill" : "lock.fill"
+                )
             }
 
-            ForEach(videos) { video in
-                VStack(alignment: .leading, spacing: 6) {
-                    HStack(spacing: 12) {
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(secondaryBackground)
-                            .frame(width: 62, height: 42)
-                            .overlay(
-                                Image(systemName: "play.rectangle.fill")
-                                    .foregroundStyle(.secondary)
-                            )
-
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(video.title)
-                                .font(.subheadline.weight(.bold))
-                                .lineLimit(1)
-                            Text("\(video.formatLabel) • \(video.resolutionText) • \(video.durationText)")
-                                .font(.caption)
-                                .foregroundStyle(secondaryText)
-                                .lineLimit(1)
-                            Text(video.sizeText)
-                                .font(.caption)
-                                .foregroundStyle(secondaryText)
-                        }
-
-                        Spacer()
-
-                        HStack(spacing: 10) {
-                            Button {
-                                selectedVideo = PlayableVideo(url: video.localURL)
-                            } label: {
-                                Image(systemName: "play.circle")
-                                    .font(.title2)
-                            }
-                            .buttonStyle(.plain)
-
-                            Menu {
-                                if !locked {
-                                    Button("Hide") {
-                                        viewModel.hide(video)
-                                    }
-                                    Button("Rename") {
-                                        renamingVideo = video
-                                        renameTitle = video.title
-                                        showRenameSheet = true
-                                    }
-                                } else {
-                                    Button("Unhide") {
-                                        viewModel.unhide(video)
-                                    }
-                                }
-                                Button("Delete", role: .destructive) {
-                                    viewModel.delete(video)
-                                }
-                            } label: {
-                                Image(systemName: "ellipsis.circle")
-                                    .font(.title2)
-                            }
-                        }
-                    }
-
-                    Divider()
-                        .padding(.leading, 74)
-                }
-                .padding(.vertical, 6)
+            if selectedLibraryTab == .downloads {
+                videoList(videos: viewModel.visibleVideos, isVaultList: false)
+            } else if viewModel.canShowHidden {
+                vaultTabContent
             }
         }
         .padding(14)
@@ -353,95 +379,313 @@ struct ContentView: View {
         .clipShape(RoundedRectangle(cornerRadius: 16))
     }
 
-    private var vaultControlCard: some View {
+    private func libraryTabButton(tab: LibraryTab, title: String, systemImage: String) -> some View {
+        let isSelected = selectedLibraryTab == tab
+        return Button {
+            if tab == .vault {
+                openVaultTab()
+            } else {
+                selectedLibraryTab = .downloads
+            }
+        } label: {
+            HStack(spacing: 6) {
+                Image(systemName: systemImage)
+                    .font(.caption.weight(.semibold))
+                Text(title)
+                    .font(.footnote.weight(.semibold))
+                    .lineLimit(1)
+            }
+            .foregroundStyle(isSelected ? accent : secondaryText)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 9)
+            .padding(.horizontal, 10)
+            .background(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .fill(isSelected ? accent.opacity(0.14) : secondaryBackground.opacity(0.66))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .stroke(isSelected ? accent.opacity(0.22) : Color.primary.opacity(0.06), lineWidth: 1)
+            )
+        }
+        .buttonStyle(.plain)
+    }
+
+    private var vaultTabContent: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
-                Text("Hidden Vault")
-                    .font(.headline)
                 Spacer()
-                Button(viewModel.isVaultUnlocked ? "Lock" : "Open") {
-                    if viewModel.isVaultUnlocked {
-                        viewModel.lockVault()
-                        showHidden = false
-                    } else {
-                        viewModel.requestUnlockVault()
-                        showVaultSheet = true
-                    }
+                Button {
+                    lockVaultAndReturnToDownloads()
+                } label: {
+                    Label("Lock Vault", systemImage: "lock.fill")
+                        .font(.caption.weight(.semibold))
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 7)
+                        .background(
+                            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                .fill(secondaryBackground)
+                        )
+                        .foregroundStyle(secondaryText)
                 }
-                .font(.callout.weight(.semibold))
+                .buttonStyle(.plain)
             }
 
-            if let vaultStatusMessage = viewModel.vaultStatusMessage {
-                Text(vaultStatusMessage)
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-            }
-
-            if !viewModel.hiddenVideos.isEmpty {
-                Toggle(isOn: $showHidden) {
-                    Text("Show hidden videos")
-                }
-                .onChange(of: showHidden) { _, newValue in
-                    if newValue && !viewModel.canShowHidden {
-                        showVaultSheet = true
-                        showHidden = false
-                    }
-                }
-                .toggleStyle(.switch)
-            } else {
-                Text("No hidden videos yet.")
-                    .font(.footnote)
-                    .foregroundStyle(secondaryText)
-            }
+            videoList(videos: viewModel.hiddenVideos, isVaultList: true)
         }
-        .padding(14)
-        .background(cardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+    }
+
+    @ViewBuilder
+    private func videoList(videos: [StoredVideo], isVaultList: Bool) -> some View {
+        if !videos.isEmpty {
+            VStack(alignment: .leading, spacing: 0) {
+                ForEach(Array(videos.enumerated()), id: \.element.id) { index, video in
+                    VStack(alignment: .leading, spacing: 6) {
+                        HStack(spacing: 12) {
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(secondaryBackground)
+                                .frame(width: 62, height: 42)
+                                .overlay(
+                                    Image(systemName: "play.rectangle.fill")
+                                        .foregroundStyle(.secondary)
+                                )
+
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(video.title)
+                                    .font(.subheadline.weight(.bold))
+                                    .lineLimit(1)
+                                Text("\(video.formatLabel) • \(video.resolutionText) • \(video.durationText)")
+                                    .font(.caption)
+                                    .foregroundStyle(secondaryText)
+                                    .lineLimit(1)
+                                Text(video.sizeText)
+                                    .font(.caption)
+                                    .foregroundStyle(secondaryText)
+                            }
+
+                            Spacer()
+
+                            HStack(spacing: 10) {
+                                Button {
+                                    selectedVideo = PlayableVideo(url: video.localURL)
+                                } label: {
+                                    Image(systemName: "play.circle")
+                                        .font(.title2)
+                                }
+                                .buttonStyle(.plain)
+
+                                Menu {
+                                    if !isVaultList {
+                                        Button {
+                                            viewModel.hide(video)
+                                        } label: {
+                                            Label("Hide", systemImage: "eye.slash")
+                                        }
+                                        Button {
+                                            renamingVideo = video
+                                            renameTitle = video.title
+                                            showRenameSheet = true
+                                        } label: {
+                                            Label("Rename", systemImage: "pencil")
+                                        }
+                                    } else {
+                                        Button {
+                                            viewModel.unhide(video)
+                                        } label: {
+                                            Label("Unhide", systemImage: "eye")
+                                        }
+                                    }
+                                    Menu {
+                                        Button {
+                                            exportToGallery(video)
+                                        } label: {
+                                            Label("To Gallery", systemImage: "photo.on.rectangle")
+                                        }
+
+                                        Button {
+                                            exportToFiles(video)
+                                        } label: {
+                                            Label("To Files", systemImage: "folder")
+                                        }
+                                    } label: {
+                                        Label("Export", systemImage: "square.and.arrow.up")
+                                    }
+                                    Button(role: .destructive) {
+                                        videoPendingDeletion = video
+                                    } label: {
+                                        Label("Delete", systemImage: "trash")
+                                    }
+                                } label: {
+                                    Image(systemName: "ellipsis.circle")
+                                        .font(.title2)
+                                }
+                            }
+                        }
+
+                        if index < videos.count - 1 {
+                            Divider()
+                                .padding(.leading, 74)
+                        }
+                    }
+                    .padding(.vertical, 6)
+                }
+            }
+        } else {
+            VStack(spacing: 8) {
+                Image(systemName: isVaultList ? "lock.doc" : "tray")
+                    .font(.title3)
+                    .foregroundStyle(secondaryText.opacity(0.8))
+
+                Text(isVaultList ? "Vault is empty" : "No videos yet")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(secondaryText)
+
+                Text(isVaultList ? "Hide a video from My Downloads to keep it here." : "Download a video using the link above.")
+                    .font(.footnote)
+                    .foregroundStyle(secondaryText.opacity(0.9))
+                    .multilineTextAlignment(.center)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 22)
+        }
+    }
+
+    private func openVaultTab() {
+        if viewModel.canShowHidden {
+            selectedLibraryTab = .vault
+            return
+        }
+
+        viewModel.requestUnlockVault()
+        showVaultSheet = true
+    }
+
+    private func lockVaultAndReturnToDownloads() {
+        viewModel.lockVault()
+        selectedLibraryTab = .downloads
     }
 
     private var vaultSheet: some View {
         NavigationStack {
-            VStack(spacing: 14) {
-                Text(viewModel.hasVaultPasscode ? "Unlock Vault" : "Create Passcode")
-                    .font(.headline)
-                Text(viewModel.hasVaultPasscode ? "Use your passcode to access hidden videos." : "Set a passcode to protect hidden videos.")
-                    .font(.callout)
-                    .foregroundStyle(secondaryText)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal)
+            ZStack {
+                LinearGradient(
+                    colors: vaultBackgroundGradientColors,
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .ignoresSafeArea()
 
-                SecureField("Passcode", text: $vaultPassword)
-                    .textFieldStyle(.roundedBorder)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 24)
+                ScrollView {
+                    VStack(spacing: 20) {
+                        VStack(spacing: 12) {
+                            ZStack {
+                                Circle()
+                                    .fill(vaultIconBackground)
+                                    .frame(width: 84, height: 84)
+                                Image(systemName: viewModel.hasVaultPasscode ? "lock.shield.fill" : "shield.lefthalf.filled.badge.checkmark")
+                                    .font(.system(size: 34, weight: .semibold))
+                                    .foregroundStyle(vaultIconForeground)
+                            }
 
-                Button {
-                    viewModel.vaultPasscodeInput = vaultPassword
-                    vaultPassword = ""
-                    viewModel.submitVaultPasscode()
-                    showVaultSheet = false
-                } label: {
-                    Text(viewModel.hasVaultPasscode ? "Unlock" : "Set Passcode")
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 44)
-                        .background(Capsule().fill(accent))
-                        .foregroundStyle(.white)
-                }
-                .disabled(vaultPassword.trimmed().isEmpty)
-                .padding(.horizontal, 24)
+                            Text(viewModel.hasVaultPasscode ? "Unlock Hidden Vault" : "Create Vault Passcode")
+                                .font(.title3.weight(.bold))
+                                .multilineTextAlignment(.center)
+                                .foregroundStyle(vaultPrimaryText)
 
-                if viewModel.hasVaultPasscode {
-                    Button("Forget Passcode", role: .destructive) {
-                        viewModel.clearVaultPasscode()
-                        showVaultSheet = false
+                            Text(viewModel.hasVaultPasscode ? "Enter your passcode to view hidden videos." : "Create a passcode to protect hidden videos and unlock private access.")
+                                .font(.subheadline)
+                                .foregroundStyle(vaultSecondaryText)
+                                .multilineTextAlignment(.center)
+                                .padding(.horizontal, 8)
+                        }
+                        .padding(.top, 8)
+
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("Passcode")
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(vaultPrimaryText)
+
+                            HStack(spacing: 10) {
+                                Image(systemName: "key.fill")
+                                    .font(.subheadline.weight(.semibold))
+                                    .foregroundStyle(vaultSecondaryText)
+
+                                SecureField("Enter passcode", text: $vaultPassword)
+                                    .textInputAutocapitalization(.never)
+                                    .autocorrectionDisabled()
+                            }
+                            .padding(.vertical, 12)
+                            .padding(.horizontal, 14)
+                            .background(
+                                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                    .fill(Color(.secondarySystemBackground))
+                            )
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                    .stroke(Color.primary.opacity(0.08), lineWidth: 1)
+                            )
+
+                            if let vaultStatusMessage = viewModel.vaultStatusMessage, !vaultStatusMessage.isEmpty {
+                                HStack(spacing: 6) {
+                                    Image(systemName: "exclamationmark.triangle.fill")
+                                    Text(vaultStatusMessage)
+                                }
+                                .font(.footnote)
+                                .foregroundStyle(Color.red.opacity(0.88))
+                            }
+
+                            Button {
+                                viewModel.vaultPasscodeInput = vaultPassword
+                                viewModel.submitVaultPasscode()
+
+                                if viewModel.canShowHidden {
+                                    vaultPassword = ""
+                                    selectedLibraryTab = .vault
+                                    showVaultSheet = false
+                                }
+                            } label: {
+                                Label(
+                                    viewModel.hasVaultPasscode ? "Unlock Vault" : "Set Passcode",
+                                    systemImage: viewModel.hasVaultPasscode ? "lock.open.fill" : "lock.badge.plus"
+                                )
+                                    .font(.headline.weight(.semibold))
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: 46)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                            .fill(accent)
+                                    )
+                                    .foregroundStyle(.white)
+                            }
+                            .buttonStyle(.plain)
+                            .disabled(vaultPassword.trimmed().count < 4)
+
+                            if viewModel.hasVaultPasscode {
+                                Button(role: .destructive) {
+                                    showForgetVaultConfirmation = true
+                                } label: {
+                                    Label(L10n.tr("Reset and Delete"), systemImage: "trash")
+                                }
+                                .font(.callout)
+                            }
+                        }
+                        .padding(16)
+                        .background(
+                            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                .fill(vaultCardFillColor)
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                .stroke(vaultCardStrokeColor, lineWidth: 1)
+                        )
+                        .shadow(color: vaultCardShadowColor, radius: 16, x: 0, y: 10)
                     }
-                    .font(.callout)
+                    .padding(.horizontal, 22)
+                    .padding(.bottom, 30)
                 }
-
-                Spacer()
             }
-            .padding(.top, 24)
-            .navigationBarTitle("Vault", displayMode: .inline)
+            .navigationTitle("Hidden Vault")
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") {
@@ -499,62 +743,38 @@ struct ContentView: View {
                 ScrollView {
                     VStack(spacing: 22) {
                         VStack(spacing: 10) {
-                            Text("Unlock Unlimited Downloads")
+                            Text(L10n.tr("Unlock Unlimited Usage"))
                                 .font(.title2.weight(.bold))
                                 .multilineTextAlignment(.center)
                                 .foregroundStyle(paywallPrimaryTextColor)
-                            Text("Get unlimited direct downloads and full hidden vault access.")
-                                .font(.subheadline)
-                                .multilineTextAlignment(.center)
-                                .foregroundStyle(paywallSecondaryTextColor)
                         }
                         .padding(.top, 8)
 
                         VStack(spacing: 14) {
-                            ForEach(viewModel.plans) { item in
+                            ForEach(viewModel.purchaseOptions) { option in
                                 paywallPlanCard(
-                                    item: item,
-                                    isSelected: item.plan == selectedPurchasePlan
+                                    option: option,
+                                    isSelected: option.id == selectedPaywallPlanID
                                 )
                             }
 
-                            if viewModel.isProductsLoading || viewModel.plans.isEmpty {
-                                ProgressView("Loading plans")
+                            if viewModel.purchaseOptions.isEmpty {
+                                ProgressView()
                                     .tint(paywallPrimaryTextColor)
                                     .padding(.vertical, 8)
                             }
                         }
 
                         Button {
-                            guard let selectedPaywallOption else {
-                                paywallStatus = "No available plans right now."
-                                return
-                            }
-
+                            guard let selectedPaywallPlanID else { return }
                             Task {
-                                isPurchasing = true
-                                paywallStatus = await viewModel.purchase(plan: selectedPaywallOption.plan)
-                                isPurchasing = false
+                                await viewModel.purchasePlan(planID: selectedPaywallPlanID)
                             }
                         } label: {
-                            HStack(spacing: 12) {
-                                if isPurchasing {
-                                    ProgressView()
-                                        .tint(.white)
-                                        .frame(width: 20, height: 20)
-                                } else {
-                                    Image(systemName: "sparkles")
-                                        .font(.headline)
-                                        .foregroundStyle(.white)
-                                }
-
-                                Text(isPurchasing ? "Processing..." : continueButtonTitle)
-                                    .font(.headline.weight(.semibold))
-                                    .foregroundStyle(.white)
-
-                                Spacer(minLength: 0)
-                            }
-                            .frame(maxWidth: .infinity)
+                            Text(viewModel.isPurchasingPlan ? L10n.tr("Processing...") : L10n.tr("Continue"))
+                                .font(.headline.weight(.semibold))
+                                .foregroundStyle(.white)
+                                .frame(maxWidth: .infinity)
                             .padding(.vertical, 16)
                             .padding(.horizontal, 18)
                             .background(
@@ -576,57 +796,47 @@ struct ContentView: View {
                         }
                         .buttonStyle(.plain)
                         .disabled(
-                            isPurchasing ||
-                            selectedPaywallOption == nil
+                            viewModel.isPurchasingPlan || selectedPaywallPlanID == nil
                         )
 
                         Button {
                             Task {
-                                isPurchasing = true
-                                paywallStatus = await viewModel.restorePurchases()
-                                isPurchasing = false
+                                await viewModel.restorePurchases()
                             }
                         } label: {
-                            HStack(spacing: 10) {
-                                Image(systemName: "arrow.clockwise.circle")
-                                    .font(.headline)
-                                    .foregroundStyle(paywallPrimaryTextColor)
-                                Text("Restore Purchases")
-                                    .font(.subheadline.weight(.semibold))
-                                    .foregroundStyle(paywallPrimaryTextColor)
-                                Spacer(minLength: 0)
-                            }
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 14)
-                            .padding(.horizontal, 16)
-                            .background(
-                                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                    .fill(paywallRestoreFillColor)
-                            )
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                    .stroke(paywallRestoreStrokeColor, lineWidth: 1)
-                            )
+                            Text(L10n.tr("Restore Purchases"))
+                                .font(.subheadline.weight(.semibold))
+                                .underline()
+                                .foregroundStyle(paywallPrimaryTextColor)
                         }
                         .buttonStyle(.plain)
-                        .disabled(isPurchasing || viewModel.isRestoringPurchases)
+                        .disabled(viewModel.isPurchasingPlan)
 
-                        if let status = paywallStatus, !status.isEmpty {
-                            Text(status)
+                        if let errorMessage = viewModel.errorMessage {
+                            Text(errorMessage)
                                 .font(.footnote)
-                                .foregroundStyle(paywallSecondaryTextColor)
+                                .foregroundStyle(Color(uiColor: .systemRed))
                                 .multilineTextAlignment(.center)
-                                .padding(.horizontal, 8)
                         }
 
                         VStack(spacing: 6) {
-                            Text("Auto-renewable plans renew unless canceled at least 24 hours before renewal.")
+                            Text(L10n.tr("Auto-renewable plans renew unless canceled 24 hours before period end."))
                                 .font(.caption2)
                                 .multilineTextAlignment(.center)
                                 .foregroundStyle(paywallTertiaryTextColor)
+                            HStack(spacing: 14) {
+                                if let termsOfUseURL {
+                                    Link(L10n.tr("Terms"), destination: termsOfUseURL)
+                                }
+                                if let privacyPolicyURL {
+                                    Link(L10n.tr("Privacy"), destination: privacyPolicyURL)
+                                }
+                            }
+                            .font(.caption2.weight(.semibold))
+                            .tint(paywallPrimaryTextColor)
 
                             if let manageSubscriptionsURL {
-                                Link("You can manage subscriptions in Apple ID settings.", destination: manageSubscriptionsURL)
+                                Link(L10n.tr("You can manage subscriptions in Apple ID settings."), destination: manageSubscriptionsURL)
                                     .font(.caption2.weight(.semibold))
                                     .underline()
                                     .multilineTextAlignment(.center)
@@ -641,16 +851,15 @@ struct ContentView: View {
             .onAppear {
                 normalizeSelectedPaywallSelection()
             }
-            .onChange(of: availablePaywallPlans) { _, _ in
+            .onChange(of: viewModel.purchaseOptions) { _, _ in
                 normalizeSelectedPaywallSelection()
             }
-            .navigationTitle("Premium")
+            .navigationTitle(L10n.tr("Premium"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         viewModel.dismissPaywall()
-                        paywallStatus = nil
                     } label: {
                         Image(systemName: "xmark.circle.fill")
                             .font(.title3)
@@ -662,75 +871,53 @@ struct ContentView: View {
     }
 
     private func normalizeSelectedPaywallSelection() {
-        if selectedPaywallOption?.isAvailable == true {
+        if let selectedPaywallPlanID,
+           viewModel.purchaseOptions.contains(where: { $0.id == selectedPaywallPlanID })
+        {
             return
         }
-        if let preferredPaywallPlan = preferredPaywallPlan() {
-            selectedPurchasePlan = preferredPaywallPlan
-        } else if let first = viewModel.plans.first?.plan {
-            selectedPurchasePlan = first
-        }
+        selectedPaywallPlanID = preferredPaywallPlanID()
     }
 
-    private func preferredPaywallPlan() -> PurchasePlan? {
-        if viewModel.plans.first(where: { $0.plan == .monthly })?.isAvailable == true {
-            return .monthly
+    private func preferredPaywallPlanID() -> String? {
+        if viewModel.purchaseOptions.contains(where: { $0.id == PurchaseManager.monthlyProductID && $0.isAvailable }) {
+            return PurchaseManager.monthlyProductID
         }
-        if viewModel.plans.first(where: { $0.plan == .lifetime })?.isAvailable == true {
-            return .lifetime
+        if viewModel.purchaseOptions.contains(where: { $0.id == PurchaseManager.lifetimeProductID && $0.isAvailable }) {
+            return PurchaseManager.lifetimeProductID
         }
-        if viewModel.plans.first(where: { $0.plan == .weekly })?.isAvailable == true {
-            return .weekly
+        if viewModel.purchaseOptions.contains(where: { $0.id == PurchaseManager.weeklyProductID && $0.isAvailable }) {
+            return PurchaseManager.weeklyProductID
         }
 
-        if viewModel.plans.contains(where: { $0.plan == .monthly }) {
-            return .monthly
+        if viewModel.purchaseOptions.contains(where: { $0.id == PurchaseManager.monthlyProductID }) {
+            return PurchaseManager.monthlyProductID
         }
-        if viewModel.plans.contains(where: { $0.plan == .lifetime }) {
-            return .lifetime
+        if viewModel.purchaseOptions.contains(where: { $0.id == PurchaseManager.lifetimeProductID }) {
+            return PurchaseManager.lifetimeProductID
         }
-        if viewModel.plans.contains(where: { $0.plan == .weekly }) {
-            return .weekly
+        if viewModel.purchaseOptions.contains(where: { $0.id == PurchaseManager.weeklyProductID }) {
+            return PurchaseManager.weeklyProductID
         }
-        return viewModel.plans.first?.plan
+
+        return viewModel.purchaseOptions.first?.id
     }
 
-    private var continueButtonTitle: String {
-        guard let selectedPaywallOption else {
-            return "Continue"
-        }
-        let price = selectedPaywallOption.displayPrice
-        if price.isEmpty || price == "—" {
-            return "Continue"
-        }
-        return "Continue • \(price)"
-    }
-
-    private var selectedPaywallOption: PurchasePlanPresentation? {
-        viewModel.plans.first(where: { $0.plan == selectedPurchasePlan })
-    }
-
-    private var availablePaywallPlans: [PurchasePlan] {
-        viewModel.plans.compactMap { $0.isAvailable ? $0.plan : nil }
-    }
-
-    private func paywallPlanCard(item: PurchasePlanPresentation, isSelected: Bool) -> some View {
-        let accent = paywallAccent(for: item.plan)
-        let isAvailable = item.isAvailable
+    private func paywallPlanCard(option: PurchasePlanOption, isSelected: Bool) -> some View {
+        let accent = paywallAccent(for: option.id)
         return Button {
-            selectedPurchasePlan = item.plan
-            paywallStatus = nil
+            selectedPaywallPlanID = option.id
         } label: {
             HStack(alignment: .top, spacing: 14) {
                 VStack(alignment: .leading, spacing: 6) {
                     HStack(alignment: .firstTextBaseline, spacing: 8) {
-                        Text(item.plan.title)
+                        Text(option.title)
                             .font(.headline)
                             .foregroundStyle(paywallPrimaryTextColor)
                             .lineLimit(1)
                             .minimumScaleFactor(0.85)
                             .layoutPriority(1)
-                        if let badge = paywallBadge(for: item.plan) {
+                        if let badge = paywallBadge(for: option.id) {
                             paywallBadgeChip(
                                 title: badge,
                                 fill: accent.opacity(0.9),
@@ -739,14 +926,23 @@ struct ContentView: View {
                                 showsStroke: true
                             )
                         }
+                        if !option.isAvailable {
+                            paywallBadgeChip(
+                                title: L10n.tr("Unavailable"),
+                                fill: Color(uiColor: .systemGray),
+                                stroke: Color.clear,
+                                textColor: .white,
+                                showsStroke: false
+                            )
+                        }
                     }
 
-                    Text(item.plan.subtitle)
+                    Text(option.subtitle)
                         .font(.subheadline)
                         .foregroundStyle(paywallSecondaryTextColor)
 
-                    if !item.displayPrice.isEmpty {
-                        Text(item.displayPrice)
+                    if !option.priceText.isEmpty {
+                        Text(option.priceText)
                             .font(.headline.weight(.semibold))
                             .foregroundStyle(paywallPrimaryTextColor)
                     }
@@ -754,11 +950,7 @@ struct ContentView: View {
 
                 Spacer()
 
-                if !isAvailable {
-                    Text("Unavailable")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(paywallTertiaryTextColor)
-                } else if isSelected {
+                if isSelected {
                     Image(systemName: "checkmark.circle.fill")
                         .font(.title3)
                         .foregroundStyle(accent)
@@ -786,30 +978,32 @@ struct ContentView: View {
                         lineWidth: isSelected ? 2 : 1
                     )
             )
-            .opacity(isAvailable ? 1 : 0.78)
+            .opacity(option.isAvailable ? 1.0 : 0.85)
         }
         .buttonStyle(.plain)
-        .disabled(isPurchasing)
+        .disabled(viewModel.isPurchasingPlan)
     }
 
-    private func paywallAccent(for plan: PurchasePlan) -> Color {
-        switch plan {
-        case .weekly:
+    private func paywallAccent(for planID: String) -> Color {
+        switch planID {
+        case PurchaseManager.weeklyProductID:
             return Color(red: 0.27, green: 0.52, blue: 0.98)
-        case .monthly:
+        case PurchaseManager.monthlyProductID:
             return Color(red: 0.62, green: 0.38, blue: 0.96)
-        case .lifetime:
+        case PurchaseManager.lifetimeProductID:
             return Color(red: 0.96, green: 0.56, blue: 0.22)
+        default:
+            return Color(red: 0.40, green: 0.48, blue: 0.72)
         }
     }
 
-    private func paywallBadge(for plan: PurchasePlan) -> String? {
-        switch plan {
-        case .monthly:
-            return "Most popular"
-        case .lifetime:
-            return "Best value"
-        case .weekly:
+    private func paywallBadge(for planID: String) -> String? {
+        switch planID {
+        case PurchaseManager.monthlyProductID:
+            return L10n.tr("Most popular")
+        case PurchaseManager.lifetimeProductID:
+            return L10n.tr("Best value")
+        default:
             return nil
         }
     }
@@ -869,8 +1063,101 @@ struct ContentView: View {
         colorScheme == .dark ? Color.white.opacity(0.08) : Color.white.opacity(0.55)
     }
 
+    private var termsOfUseURL: URL? {
+        if let configured = Bundle.main.object(forInfoDictionaryKey: "TERMS_OF_USE_URL") as? String,
+           let url = URL(string: configured), !configured.isEmpty
+        {
+            return url
+        }
+        return URL(string: "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/")
+    }
+
+    private var privacyPolicyURL: URL? {
+        if let configured = Bundle.main.object(forInfoDictionaryKey: "PRIVACY_POLICY_URL") as? String,
+           let url = URL(string: configured), !configured.isEmpty
+        {
+            return url
+        }
+        return nil
+    }
+
     private var manageSubscriptionsURL: URL? {
         URL(string: "https://apps.apple.com/account/subscriptions")
+    }
+
+    @ViewBuilder
+    private var manageSubscriptionsInlineButton: some View {
+        Button {
+            openManageSubscriptions()
+        } label: {
+            HStack(spacing: 8) {
+                Image(systemName: "person.crop.circle.badge.checkmark")
+                    .font(.subheadline.weight(.semibold))
+                Text(L10n.tr("You can manage subscriptions in Apple ID settings."))
+                    .font(.caption.weight(.semibold))
+                    .multilineTextAlignment(.leading)
+                Spacer(minLength: 0)
+                Image(systemName: "arrow.up.right.square")
+                    .font(.caption.weight(.bold))
+            }
+            .foregroundStyle(Color(uiColor: .secondaryLabel))
+            .padding(.horizontal, 12)
+            .padding(.vertical, 10)
+            .background(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .fill(Color(uiColor: .tertiarySystemBackground))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .stroke(Color(uiColor: .separator).opacity(colorScheme == .dark ? 0.45 : 0.25), lineWidth: 1)
+            )
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func openManageSubscriptions() {
+        guard let url = manageSubscriptionsURL else { return }
+        UIApplication.shared.open(url)
+    }
+
+    private func exportToFiles(_ video: StoredVideo) {
+        filesExportURL = video.localURL
+    }
+
+    private func exportToGallery(_ video: StoredVideo) {
+        Task {
+            let authorization = await PHPhotoLibrary.requestAuthorization(for: .addOnly)
+            guard authorization == .authorized || authorization == .limited else {
+                exportAlertMessage = "Photo Library access is required to export to Gallery."
+                return
+            }
+
+            let fileManager = FileManager.default
+            let fileExtension = video.localURL.pathExtension.isEmpty ? "mp4" : video.localURL.pathExtension
+            let temporaryURL = fileManager.temporaryDirectory
+                .appendingPathComponent("gallery-export-\(UUID().uuidString)")
+                .appendingPathExtension(fileExtension)
+
+            do {
+                if fileManager.fileExists(atPath: temporaryURL.path) {
+                    try fileManager.removeItem(at: temporaryURL)
+                }
+
+                try fileManager.copyItem(at: video.localURL, to: temporaryURL)
+
+                try await PHPhotoLibrary.shared().performChanges {
+                    if let request = PHAssetChangeRequest.creationRequestForAssetFromVideo(atFileURL: temporaryURL) {
+                        request.creationDate = Date()
+                    }
+                }
+
+                try? fileManager.removeItem(at: temporaryURL)
+                exportAlertMessage = "Video exported to Gallery."
+            } catch {
+                try? fileManager.removeItem(at: temporaryURL)
+                exportAlertMessage = "Failed to export to Gallery: \(error.localizedDescription)"
+            }
+        }
     }
 
     private var paywallBackgroundGradientColors: [Color] {
@@ -922,6 +1209,47 @@ struct ContentView: View {
         colorScheme == .dark ? .black.opacity(0.28) : .black.opacity(0.14)
     }
 
+    private var vaultBackgroundGradientColors: [Color] {
+        if colorScheme == .dark {
+            return [
+                Color(red: 0.08, green: 0.14, blue: 0.22),
+                Color(red: 0.10, green: 0.19, blue: 0.32)
+            ]
+        }
+        return [
+            Color(red: 0.95, green: 0.97, blue: 1.0),
+            Color(red: 0.88, green: 0.93, blue: 1.0)
+        ]
+    }
+
+    private var vaultCardFillColor: Color {
+        colorScheme == .dark ? Color.white.opacity(0.09) : Color.white.opacity(0.84)
+    }
+
+    private var vaultCardStrokeColor: Color {
+        colorScheme == .dark ? Color.white.opacity(0.18) : Color.black.opacity(0.10)
+    }
+
+    private var vaultCardShadowColor: Color {
+        colorScheme == .dark ? .black.opacity(0.30) : .black.opacity(0.12)
+    }
+
+    private var vaultPrimaryText: Color {
+        colorScheme == .dark ? .white : Color(uiColor: .label)
+    }
+
+    private var vaultSecondaryText: Color {
+        colorScheme == .dark ? .white.opacity(0.78) : Color(uiColor: .secondaryLabel)
+    }
+
+    private var vaultIconBackground: Color {
+        colorScheme == .dark ? accent.opacity(0.24) : accent.opacity(0.16)
+    }
+
+    private var vaultIconForeground: Color {
+        colorScheme == .dark ? .white : accent
+    }
+
     private func surfaceTone(_ opacity: Double) -> Color {
         colorScheme == .dark ? Color(red: 0.08, green: 0.11, blue: 0.18) : Color(red: 0.95, green: 0.96, blue: 1.0)
     }
@@ -940,6 +1268,49 @@ private struct PlayableVideo: Identifiable {
 
 #Preview {
     ContentView()
+}
+
+private struct FilesExportPicker: UIViewControllerRepresentable {
+    let url: URL
+    let onComplete: (Result<URL, Error>) -> Void
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(onComplete: onComplete)
+    }
+
+    func makeUIViewController(context: Context) -> UIDocumentPickerViewController {
+        let picker = UIDocumentPickerViewController(forExporting: [url], asCopy: true)
+        picker.delegate = context.coordinator
+        picker.shouldShowFileExtensions = true
+        return picker
+    }
+
+    func updateUIViewController(_ uiViewController: UIDocumentPickerViewController, context: Context) {}
+
+    final class Coordinator: NSObject, UIDocumentPickerDelegate {
+        private let onComplete: (Result<URL, Error>) -> Void
+        private var hasFinished = false
+
+        init(onComplete: @escaping (Result<URL, Error>) -> Void) {
+            self.onComplete = onComplete
+        }
+
+        func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
+            guard !hasFinished else { return }
+            hasFinished = true
+            guard let url = urls.first else {
+                onComplete(.failure(CocoaError(.fileNoSuchFile)))
+                return
+            }
+            onComplete(.success(url))
+        }
+
+        func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
+            guard !hasFinished else { return }
+            hasFinished = true
+            onComplete(.failure(CocoaError(.userCancelled)))
+        }
+    }
 }
 
 #if DEBUG

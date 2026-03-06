@@ -70,12 +70,20 @@ public struct SubscriptionEntitlementState: Equatable, Codable, Sendable {
     public var hasMonthly: Bool
     public var hasLifetime: Bool
     public var lastFreeDownloadAt: Date?
+    public var lastFreeHideAt: Date?
 
-    public init(hasWeekly: Bool = false, hasMonthly: Bool = false, hasLifetime: Bool = false, lastFreeDownloadAt: Date? = nil) {
+    public init(
+        hasWeekly: Bool = false,
+        hasMonthly: Bool = false,
+        hasLifetime: Bool = false,
+        lastFreeDownloadAt: Date? = nil,
+        lastFreeHideAt: Date? = nil
+    ) {
         self.hasWeekly = hasWeekly
         self.hasMonthly = hasMonthly
         self.hasLifetime = hasLifetime
         self.lastFreeDownloadAt = lastFreeDownloadAt
+        self.lastFreeHideAt = lastFreeHideAt
     }
 
     public var hasActivePaidAccess: Bool {
@@ -178,6 +186,38 @@ public struct DownloadAccessPolicy {
 
         var updated = current
         updated.lastFreeDownloadAt = now
+        return updated
+    }
+
+    public func evaluateHide(
+        entitlements: SubscriptionEntitlementState,
+        now: Date = .init(),
+        calendar: Calendar = .autoupdatingCurrent
+    ) -> DownloadAccessDecision {
+        if entitlements.hasActivePaidAccess {
+            return DownloadAccessDecision(isAllowed: true, shouldRecordFreeDownload: false, requiresPaywall: false)
+        }
+
+        guard let lastFreeHideAt = entitlements.lastFreeHideAt else {
+            return DownloadAccessDecision(isAllowed: true, shouldRecordFreeDownload: true, requiresPaywall: false)
+        }
+
+        if calendar.isDate(lastFreeHideAt, inSameDayAs: now) {
+            return DownloadAccessDecision(isAllowed: false, shouldRecordFreeDownload: false, requiresPaywall: true)
+        }
+
+        return DownloadAccessDecision(isAllowed: true, shouldRecordFreeDownload: true, requiresPaywall: false)
+    }
+
+    public func recordFreeHideIfNeeded(
+        decision: DownloadAccessDecision,
+        current: SubscriptionEntitlementState,
+        at now: Date = .init()
+    ) -> SubscriptionEntitlementState {
+        guard decision.shouldRecordFreeDownload else { return current }
+
+        var updated = current
+        updated.lastFreeHideAt = now
         return updated
     }
 

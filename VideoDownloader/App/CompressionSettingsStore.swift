@@ -21,7 +21,10 @@ final class VideoStorageStore {
             return []
         }
 
-        if let videos = try? JSONDecoder().decode([StoredVideo].self, from: data) {
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+
+        if let videos = try? decoder.decode([StoredVideo].self, from: data) {
             return videos.sorted { $0.createdAt > $1.createdAt }
         }
 
@@ -38,8 +41,11 @@ final class VideoStorageStore {
     }
 
     func loadEntitlements() -> SubscriptionEntitlementState {
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+
         guard let data = defaults.data(forKey: entitlementKey),
-              let entitlements = try? JSONDecoder().decode(SubscriptionEntitlementState.self, from: data)
+              let entitlements = try? decoder.decode(SubscriptionEntitlementState.self, from: data)
         else {
             return SubscriptionEntitlementState()
         }
@@ -57,9 +63,10 @@ final class VideoStorageStore {
     }
 
 #if DEBUG
-    func debugResetFreeDownloadsToday() {
+    func debugResetDailyFreeLimits() {
         var entitlements = loadEntitlements()
         entitlements.lastFreeDownloadAt = nil
+        entitlements.lastFreeHideAt = nil
         saveEntitlements(entitlements)
     }
 #endif
