@@ -86,6 +86,7 @@ capture_one light downloading-process downloading-process 2.3
 capture_one light video-menu-opened video-menu-opened 2.4
 capture_one light video-export-opened video-export-opened 2.4
 capture_one light rename-file rename-file 2.6
+capture_one light paywall paywall-window 3.0
 capture_one light vault-unlock-modal vault-unlock-modal 2.8
 capture_one light vault-unlocked-videos vault-unlocked-videos 2.3
 
@@ -95,11 +96,12 @@ capture_one dark downloading-process downloading-process-dark 2.3
 capture_one dark video-menu-opened video-menu-opened-dark 2.4
 capture_one dark video-export-opened video-export-opened-dark 2.4
 capture_one dark rename-file rename-file-dark 2.6
+capture_one dark paywall paywall-window-dark 3.0
 capture_one dark vault-unlock-modal vault-unlock-modal-dark 2.8
 capture_one dark vault-unlocked-videos vault-unlocked-videos-dark 2.3
 
 echo "High screenshots:"
-ls -1 "$PROJECT_ROOT/showcase/high" | rg '^(main-videos|demo-link|downloading-process|video-menu-opened|video-export-opened|rename-file|vault-unlock-modal|vault-unlocked-videos)(-dark)?\.png$' | wc -l
+ls -1 "$PROJECT_ROOT/showcase/high" | rg '^(main-videos|demo-link|downloading-process|video-menu-opened|video-export-opened|rename-file|paywall-window|vault-unlock-modal|vault-unlocked-videos)(-dark)?\.png$' | wc -l
 
 echo "Preview screenshots:"
-ls -1 "$PROJECT_ROOT/showcase/preview" | rg '^(main-videos|demo-link|downloading-process|video-menu-opened|video-export-opened|rename-file|vault-unlock-modal|vault-unlocked-videos)(-dark)?\.png$' | wc -l
+ls -1 "$PROJECT_ROOT/showcase/preview" | rg '^(main-videos|demo-link|downloading-process|video-menu-opened|video-export-opened|rename-file|paywall-window|vault-unlock-modal|vault-unlocked-videos)(-dark)?\.png$' | wc -l

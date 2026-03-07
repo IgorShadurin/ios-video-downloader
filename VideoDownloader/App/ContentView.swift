@@ -16,6 +16,7 @@ struct ContentView: View {
         case videoMenuOpened = "video-menu-opened"
         case exportMenuOpened = "video-export-opened"
         case renameFile = "rename-file"
+        case paywall = "paywall"
         case vaultUnlockModal = "vault-unlock-modal"
         case vaultUnlockedVideos = "vault-unlocked-videos"
     }
@@ -776,6 +777,16 @@ struct ContentView: View {
                 renameTitle = first.title
                 showRenameSheet = true
             }
+        case .paywall:
+            viewModel.debugApplyShowcase(
+                sourceURL: "",
+                state: .idle,
+                videos: regularVideos,
+                hasVaultPasscode: false,
+                isVaultUnlocked: false
+            )
+            viewModel.debugPresentShowcasePaywall()
+            selectedPaywallPlanID = PurchaseManager.monthlyProductID
         case .vaultUnlockModal:
             viewModel.debugApplyShowcase(
                 sourceURL: "",

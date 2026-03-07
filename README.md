@@ -148,7 +148,19 @@ Click any preview to open the high-quality screenshot.
       <br />
       <sub>Vault Unlocked (Dark)</sub>
     </td>
-    <td></td>
-    <td></td>
+    <td align="center">
+      <a href="showcase/high/paywall-window.png">
+        <img src="showcase/preview/paywall-window.png" alt="Paywall (light)" width="200" />
+      </a>
+      <br />
+      <sub>Paywall (Light)</sub>
+    </td>
+    <td align="center">
+      <a href="showcase/high/paywall-window-dark.png">
+        <img src="showcase/preview/paywall-window-dark.png" alt="Paywall (dark)" width="200" />
+      </a>
+      <br />
+      <sub>Paywall (Dark)</sub>
+    </td>
   </tr>
 </table>

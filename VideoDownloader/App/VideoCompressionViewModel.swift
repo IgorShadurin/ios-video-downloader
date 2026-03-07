@@ -358,6 +358,39 @@ final class VideoDownloaderViewModel: ObservableObject {
         } else {
             store.clearVaultPasscode()
         }
+
+        isPaywallPresented = false
+        isPurchasingPlan = false
+        purchaseOptions = []
+    }
+
+    func debugPresentShowcasePaywall() {
+        errorMessage = nil
+        isPurchasingPlan = false
+        purchaseOptions = [
+            PurchasePlanOption(
+                id: PurchaseManager.weeklyProductID,
+                title: L10n.tr("Weekly"),
+                subtitle: L10n.tr("Unlimited usage, billed weekly"),
+                priceText: "$0.99",
+                isAvailable: true
+            ),
+            PurchasePlanOption(
+                id: PurchaseManager.monthlyProductID,
+                title: L10n.tr("Monthly"),
+                subtitle: L10n.tr("Unlimited usage, billed monthly"),
+                priceText: "$2.99",
+                isAvailable: true
+            ),
+            PurchasePlanOption(
+                id: PurchaseManager.lifetimeProductID,
+                title: L10n.tr("Forever"),
+                subtitle: L10n.tr("Unlimited usage forever"),
+                priceText: "$29.90",
+                isAvailable: true
+            )
+        ]
+        isPaywallPresented = true
     }
 
     func debugMakeShowcaseVideos(totalCount: Int, hiddenCount: Int) -> [StoredVideo] {
