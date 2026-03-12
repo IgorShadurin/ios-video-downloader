@@ -209,3 +209,16 @@
 "Vault" = "Kasa";
 
 "Download Video" = "İndir Video";
+
+
+"Confirm Download Rights" = "İndirme Haklarını Onayla";
+"Before downloading, confirm that you requested this file and have permission to save it from this source." = "İndirmeden önce bu dosyayı istediğinizi ve bu kaynaktan kaydetme izniniz olduğunu doğrulayın.";
+"Requested URL" = "İstenen URL";
+"You requested this exact URL yourself." = "Bu URL'yi tam olarak kendiniz istediniz.";
+"This website allows you to download this file." = "Bu web sitesi bu dosyayı indirmenize izin verir.";
+"You received approval from the owner of this domain to download this file." = "Bu dosyayı indirmek için bu alanın sahibinden onay aldınız.";
+"Yes" = "Evet";
+"No" = "HAYIR";
+"You do not have permission to download this file." = "Bu dosyayı indirme izniniz yok.";
+"All answers must be Yes to continue." = "Devam etmek için tüm yanıtların Evet olması gerekir.";
+"Confirm and Download" = "Onayla ve İndir";

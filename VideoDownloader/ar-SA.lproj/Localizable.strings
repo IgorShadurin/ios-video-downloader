@@ -209,3 +209,16 @@
 "Vault" = "الخزنة";
 
 "Download Video" = "تنزيل Video";
+
+
+"Confirm Download Rights" = "تأكيد حقوق التنزيل";
+"Before downloading, confirm that you requested this file and have permission to save it from this source." = "قبل التنزيل، تأكد من أنك طلبت هذا الملف وأن لديك الإذن بحفظه من هذا المصدر.";
+"Requested URL" = "عنوان URL المطلوب";
+"You requested this exact URL yourself." = "لقد طلبت عنوان URL هذا بنفسك.";
+"This website allows you to download this file." = "يتيح لك هذا الموقع تنزيل هذا الملف.";
+"You received approval from the owner of this domain to download this file." = "لقد تلقيت موافقة من مالك هذا النطاق لتنزيل هذا الملف.";
+"Yes" = "نعم";
+"No" = "لا";
+"You do not have permission to download this file." = "ليس لديك الإذن بتنزيل هذا الملف.";
+"All answers must be Yes to continue." = "يجب أن تكون جميع الإجابات نعم للمتابعة.";
+"Confirm and Download" = "تأكيد وتنزيل";

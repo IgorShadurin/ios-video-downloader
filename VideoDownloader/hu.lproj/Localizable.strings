@@ -209,3 +209,16 @@
 "Vault" = "Trezor";
 
 "Download Video" = "Letöltés Video";
+
+
+"Confirm Download Rights" = "Erősítse meg a letöltési jogokat";
+"Before downloading, confirm that you requested this file and have permission to save it from this source." = "A letöltés előtt győződjön meg arról, hogy kérte ezt a fájlt, és rendelkezik-e engedéllyel a forrásból való mentésére.";
+"Requested URL" = "Kért URL";
+"You requested this exact URL yourself." = "Ön kérte ezt a pontos URL-t.";
+"This website allows you to download this file." = "Ez a webhely lehetővé teszi a fájl letöltését.";
+"You received approval from the owner of this domain to download this file." = "A domain tulajdonosától jóváhagyást kapott a fájl letöltéséhez.";
+"Yes" = "Igen";
+"No" = "Nem";
+"You do not have permission to download this file." = "Nincs engedélye a fájl letöltésére.";
+"All answers must be Yes to continue." = "A folytatáshoz minden válasznak igennek kell lennie.";
+"Confirm and Download" = "Erősítse meg és töltse le";

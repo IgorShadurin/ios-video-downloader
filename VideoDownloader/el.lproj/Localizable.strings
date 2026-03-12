@@ -209,3 +209,16 @@
 "Vault" = "Θησαυροφυλάκιο";
 
 "Download Video" = "Λήψη Video";
+
+
+"Confirm Download Rights" = "Επιβεβαιώστε τα δικαιώματα λήψης";
+"Before downloading, confirm that you requested this file and have permission to save it from this source." = "Πριν από τη λήψη, επιβεβαιώστε ότι ζητήσατε αυτό το αρχείο και έχετε άδεια να το αποθηκεύσετε από αυτήν την πηγή.";
+"Requested URL" = "Ζητήθηκε διεύθυνση URL";
+"You requested this exact URL yourself." = "Ζητήσατε μόνοι σας αυτήν την ακριβή διεύθυνση URL.";
+"This website allows you to download this file." = "Αυτός ο ιστότοπος σάς επιτρέπει να κατεβάσετε αυτό το αρχείο.";
+"You received approval from the owner of this domain to download this file." = "Λάβατε έγκριση από τον κάτοχο αυτού του τομέα για τη λήψη αυτού του αρχείου.";
+"Yes" = "Ναί";
+"No" = "Οχι";
+"You do not have permission to download this file." = "Δεν έχετε άδεια λήψης αυτού του αρχείου.";
+"All answers must be Yes to continue." = "Όλες οι απαντήσεις πρέπει να είναι Ναι για να συνεχίσετε.";
+"Confirm and Download" = "Επιβεβαίωση και λήψη";

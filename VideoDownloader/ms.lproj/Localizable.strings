@@ -209,3 +209,16 @@
 "Vault" = "Peti besi";
 
 "Download Video" = "Muat turun Video";
+
+
+"Confirm Download Rights" = "Sahkan Hak Muat Turun";
+"Before downloading, confirm that you requested this file and have permission to save it from this source." = "Sebelum memuat turun, sahkan bahawa anda meminta fail ini dan mempunyai kebenaran untuk menyimpannya daripada sumber ini.";
+"Requested URL" = "URL yang diminta";
+"You requested this exact URL yourself." = "Anda sendiri yang meminta URL tepat ini.";
+"This website allows you to download this file." = "Laman web ini membolehkan anda memuat turun fail ini.";
+"You received approval from the owner of this domain to download this file." = "Anda menerima kelulusan daripada pemilik domain ini untuk memuat turun fail ini.";
+"Yes" = "ya";
+"No" = "Tidak";
+"You do not have permission to download this file." = "Anda tiada kebenaran untuk memuat turun fail ini.";
+"All answers must be Yes to continue." = "Semua jawapan mestilah Ya untuk meneruskan.";
+"Confirm and Download" = "Sahkan dan Muat turun";

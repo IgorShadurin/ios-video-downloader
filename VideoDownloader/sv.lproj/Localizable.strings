@@ -209,3 +209,14 @@
 "Vault" = "Valv";
 
 "Download Video" = "Ladda ner Video";
+"Confirm Download Rights" = "Bekräfta nedladdningsrättigheter";
+"Before downloading, confirm that you requested this file and have permission to save it from this source." = "Innan du laddar ner, bekräfta att du begärde den här filen och har tillstånd att spara den från den här källan.";
+"Requested URL" = "Begärd URL";
+"You requested this exact URL yourself." = "Du begärde själv exakt denna URL.";
+"This website allows you to download this file." = "Den här webbplatsen tillåter att du laddar ner den här filen.";
+"You received approval from the owner of this domain to download this file." = "Du har fått godkännande från ägaren av denna domän att ladda ner den här filen.";
+"Yes" = "Ja";
+"No" = "Nej";
+"You do not have permission to download this file." = "Du har inte behörighet att ladda ner den här filen.";
+"All answers must be Yes to continue." = "Alla svar måste vara Ja för att fortsätta.";
+"Confirm and Download" = "Bekräfta och ladda ner";

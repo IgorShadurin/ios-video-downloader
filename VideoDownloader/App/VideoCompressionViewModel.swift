@@ -25,7 +25,7 @@ final class VideoDownloaderViewModel: ObservableObject {
     @Published var vaultPasscodeInput: String = ""
     @Published private(set) var vaultStatusMessage: String?
 
-    let resolver = SupportedFormatResolver()
+    let resolver: SupportedFormatResolver
     private let store = VideoStorageStore()
     private let downloadService: VideoDownloadServiceProtocol
     private let metadataInspector = VideoMetadataInspector()
@@ -33,6 +33,7 @@ final class VideoDownloaderViewModel: ObservableObject {
     private let purchaseManager = PurchaseManager()
 
     init(downloadService: VideoDownloadServiceProtocol? = nil) {
+        self.resolver = SupportedFormatResolver()
         self.downloadService = downloadService ?? VideoDownloadService()
         self.entitlements = store.loadEntitlements()
         self.downloadedVideos = store.loadVideos()

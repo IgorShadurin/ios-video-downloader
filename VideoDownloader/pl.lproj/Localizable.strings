@@ -209,3 +209,16 @@
 "Vault" = "Skarbiec";
 
 "Download Video" = "Pobierz Video";
+
+
+"Confirm Download Rights" = "Potwierdź prawa do pobierania";
+"Before downloading, confirm that you requested this file and have permission to save it from this source." = "Przed pobraniem potwierdź, że zażądałeś tego pliku i masz pozwolenie na zapisanie go z tego źródła.";
+"Requested URL" = "Żądany adres URL";
+"You requested this exact URL yourself." = "Sam poprosiłeś o ten dokładny adres URL.";
+"This website allows you to download this file." = "Ta strona umożliwia pobranie tego pliku.";
+"You received approval from the owner of this domain to download this file." = "Otrzymałeś zgodę właściciela tej domeny na pobranie tego pliku.";
+"Yes" = "Tak";
+"No" = "NIE";
+"You do not have permission to download this file." = "Nie masz uprawnień do pobrania tego pliku.";
+"All answers must be Yes to continue." = "Aby kontynuować, wszystkie odpowiedzi muszą brzmieć Tak.";
+"Confirm and Download" = "Potwierdź i pobierz";

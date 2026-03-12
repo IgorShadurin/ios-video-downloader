@@ -209,3 +209,16 @@
 "Vault" = "保險庫";
 
 "Download Video" = "下載 Video";
+
+
+"Confirm Download Rights" = "確認下載權限";
+"Before downloading, confirm that you requested this file and have permission to save it from this source." = "在下載之前，請確認您請求了此文件並有權從此來源保存它。";
+"Requested URL" = "請求的網址";
+"You requested this exact URL yourself." = "您自己請求了這個確切的 URL。";
+"This website allows you to download this file." = "該網站允許您下載該檔案。";
+"You received approval from the owner of this domain to download this file." = "您已獲得該網域擁有者的批准，可以下載該檔案。";
+"Yes" = "是的";
+"No" = "不";
+"You do not have permission to download this file." = "您沒有下載該檔案的權限。";
+"All answers must be Yes to continue." = "所有答案必須為「是」才能繼續。";
+"Confirm and Download" = "確認並下載";

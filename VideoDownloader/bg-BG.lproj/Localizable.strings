@@ -209,3 +209,16 @@
 "Vault" = "Сейф";
 
 "Download Video" = "Изтегли Video";
+
+
+"Confirm Download Rights" = "Потвърдете правата за изтегляне";
+"Before downloading, confirm that you requested this file and have permission to save it from this source." = "Преди да изтеглите, потвърдете, че сте поискали този файл и имате разрешение да го запазите от този източник.";
+"Requested URL" = "Искан URL";
+"You requested this exact URL yourself." = "Вие сами поискахте точния URL адрес.";
+"This website allows you to download this file." = "Този уебсайт ви позволява да изтеглите този файл.";
+"You received approval from the owner of this domain to download this file." = "Получихте одобрение от собственика на този домейн за изтегляне на този файл.";
+"Yes" = "да";
+"No" = "не";
+"You do not have permission to download this file." = "Нямате разрешение да изтеглите този файл.";
+"All answers must be Yes to continue." = "Всички отговори трябва да са Да, за да продължите.";
+"Confirm and Download" = "Потвърдете и изтеглете";

@@ -209,3 +209,16 @@
 "Vault" = "Volta";
 
 "Download Video" = "Descarrega Video";
+
+
+"Confirm Download Rights" = "Confirmeu els drets de descàrrega";
+"Before downloading, confirm that you requested this file and have permission to save it from this source." = "Abans de baixar-lo, confirmeu que heu sol·licitat aquest fitxer i teniu permís per desar-lo des d'aquesta font.";
+"Requested URL" = "URL sol·licitat";
+"You requested this exact URL yourself." = "Heu sol·licitat aquest URL exacte vosaltres mateixos.";
+"This website allows you to download this file." = "Aquest lloc web us permet descarregar aquest fitxer.";
+"You received approval from the owner of this domain to download this file." = "Heu rebut l'aprovació del propietari d'aquest domini per baixar aquest fitxer.";
+"Yes" = "Sí";
+"No" = "No";
+"You do not have permission to download this file." = "No teniu permís per descarregar aquest fitxer.";
+"All answers must be Yes to continue." = "Totes les respostes han de ser Sí per continuar.";
+"Confirm and Download" = "Confirmeu i descarregueu";

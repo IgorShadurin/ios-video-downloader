@@ -209,3 +209,16 @@
 "Vault" = "वॉल्ट";
 
 "Download Video" = "डाउनलोड Video";
+
+
+"Confirm Download Rights" = "डाउनलोड अधिकार की पुष्टि करें";
+"Before downloading, confirm that you requested this file and have permission to save it from this source." = "डाउनलोड करने से पहले, पुष्टि करें कि आपने इस फ़ाइल का अनुरोध किया है और आपके पास इसे इस स्रोत से सहेजने की अनुमति है।";
+"Requested URL" = "अनुरोधित यूआरएल";
+"You requested this exact URL yourself." = "आपने स्वयं इस सटीक URL का अनुरोध किया था.";
+"This website allows you to download this file." = "यह वेबसाइट आपको यह फ़ाइल डाउनलोड करने की अनुमति देती है।";
+"You received approval from the owner of this domain to download this file." = "आपको इस फ़ाइल को डाउनलोड करने के लिए इस डोमेन के स्वामी से अनुमोदन प्राप्त हुआ है।";
+"Yes" = "हाँ";
+"No" = "नहीं";
+"You do not have permission to download this file." = "आपको इस फ़ाइल को डाउनलोड करने की अनुमति नहीं है.";
+"All answers must be Yes to continue." = "जारी रखने के लिए सभी उत्तर हाँ होने चाहिए।";
+"Confirm and Download" = "पुष्टि करें और डाउनलोड करें";

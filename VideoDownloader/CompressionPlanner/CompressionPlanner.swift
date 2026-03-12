@@ -1,5 +1,15 @@
 import Foundation
 
+private enum PlannerL10n {
+    static func tr(_ key: String) -> String {
+        NSLocalizedString(key, tableName: nil, bundle: .main, value: key, comment: "")
+    }
+
+    static func fmt(_ key: String, _ args: CVarArg...) -> String {
+        String(format: tr(key), locale: Locale.current, arguments: args)
+    }
+}
+
 public enum DownloadValidationError: Error, Equatable, LocalizedError {
     case missingOrInvalidURL
     case missingFileExtension
@@ -8,11 +18,11 @@ public enum DownloadValidationError: Error, Equatable, LocalizedError {
     public var errorDescription: String? {
         switch self {
         case .missingOrInvalidURL:
-            return L10n.tr("Paste a direct video link and tap Download.")
+            return PlannerL10n.tr("Paste a direct video link and tap Download.")
         case .missingFileExtension:
-            return L10n.tr("Selected format is not available for this source video.")
+            return PlannerL10n.tr("Selected format is not available for this source video.")
         case .unsupportedFormat(let value):
-            return L10n.fmt("%@ (unavailable for this video)", value.uppercased())
+            return PlannerL10n.fmt("%@ (unavailable for this video)", value.uppercased())
         }
     }
 }
@@ -110,22 +120,22 @@ public enum PurchasePlan: String, CaseIterable, Codable, Sendable {
     public var title: String {
         switch self {
         case .weekly:
-            return L10n.tr("Weekly")
+            return PlannerL10n.tr("Weekly")
         case .monthly:
-            return L10n.tr("Monthly")
+            return PlannerL10n.tr("Monthly")
         case .lifetime:
-            return L10n.tr("One-time")
+            return PlannerL10n.tr("One-time")
         }
     }
 
     public var subtitle: String {
         switch self {
         case .weekly:
-            return L10n.tr("Unlimited usage, billed weekly")
+            return PlannerL10n.tr("Unlimited usage, billed weekly")
         case .monthly:
-            return L10n.tr("Unlimited usage, billed monthly")
+            return PlannerL10n.tr("Unlimited usage, billed monthly")
         case .lifetime:
-            return L10n.tr("Unlimited usage forever")
+            return PlannerL10n.tr("Unlimited usage forever")
         }
     }
 
@@ -249,8 +259,6 @@ public struct DownloadAccessPolicy {
 }
 
 public struct SupportedFormatResolver {
-    public init() {}
-
     public func supportedDownloadFormats() -> [SupportedFormat] {
         SupportedFormat.iosPlayable
     }
@@ -266,6 +274,10 @@ public struct SupportedFormatResolver {
         guard let scheme = url.scheme?.lowercased(),
               scheme == "http" || scheme == "https"
         else {
+            throw DownloadValidationError.missingOrInvalidURL
+        }
+
+        guard let host = url.host?.lowercased(), !host.isEmpty else {
             throw DownloadValidationError.missingOrInvalidURL
         }
 

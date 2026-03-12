@@ -209,3 +209,16 @@
 "Vault" = "Хранилище";
 
 "Download Video" = "Скачать Video";
+
+
+"Confirm Download Rights" = "Подтвердите права на загрузку";
+"Before downloading, confirm that you requested this file and have permission to save it from this source." = "Перед загрузкой подтвердите, что вы запросили этот файл и имеете разрешение на его сохранение из этого источника.";
+"Requested URL" = "Запрошенный URL";
+"You requested this exact URL yourself." = "Вы сами запросили этот точный URL.";
+"This website allows you to download this file." = "Этот сайт позволяет вам скачать этот файл.";
+"You received approval from the owner of this domain to download this file." = "Вы получили разрешение от владельца этого домена на загрузку этого файла.";
+"Yes" = "Да";
+"No" = "Нет";
+"You do not have permission to download this file." = "У вас нет разрешения на загрузку этого файла.";
+"All answers must be Yes to continue." = "Для продолжения все ответы должны быть положительными.";
+"Confirm and Download" = "Подтвердите и загрузите";

@@ -209,3 +209,16 @@
 "Vault" = "Seif";
 
 "Download Video" = "Descarcă Video";
+
+
+"Confirm Download Rights" = "Confirmați drepturile de descărcare";
+"Before downloading, confirm that you requested this file and have permission to save it from this source." = "Înainte de a descărca, confirmați că ați solicitat acest fișier și aveți permisiunea de a-l salva din această sursă.";
+"Requested URL" = "Adresa URL solicitată";
+"You requested this exact URL yourself." = "Ați solicitat chiar dvs. această adresă URL.";
+"This website allows you to download this file." = "Acest site web vă permite să descărcați acest fișier.";
+"You received approval from the owner of this domain to download this file." = "Ați primit aprobarea de la proprietarul acestui domeniu pentru a descărca acest fișier.";
+"Yes" = "Da";
+"No" = "Nu";
+"You do not have permission to download this file." = "Nu aveți permisiunea de a descărca acest fișier.";
+"All answers must be Yes to continue." = "Toate răspunsurile trebuie să fie Da pentru a continua.";
+"Confirm and Download" = "Confirmați și descărcați";

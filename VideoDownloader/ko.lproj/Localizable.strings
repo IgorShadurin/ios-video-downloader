@@ -209,3 +209,16 @@
 "Vault" = "보관함";
 
 "Download Video" = "다운로드 Video";
+
+
+"Confirm Download Rights" = "다운로드 권한 확인";
+"Before downloading, confirm that you requested this file and have permission to save it from this source." = "다운로드하기 전에 이 파일을 요청했는지 확인하고 이 소스에서 파일을 저장할 수 있는 권한이 있는지 확인하세요.";
+"Requested URL" = "요청된 URL";
+"You requested this exact URL yourself." = "귀하가 직접 이 정확한 URL을 요청했습니다.";
+"This website allows you to download this file." = "이 웹사이트에서는 이 파일을 다운로드할 수 있습니다.";
+"You received approval from the owner of this domain to download this file." = "이 파일을 다운로드하기 위해 이 도메인 소유자로부터 승인을 받았습니다.";
+"Yes" = "예";
+"No" = "아니요";
+"You do not have permission to download this file." = "이 파일을 다운로드할 권한이 없습니다.";
+"All answers must be Yes to continue." = "계속하려면 모든 대답이 '예'여야 합니다.";
+"Confirm and Download" = "확인 및 다운로드";

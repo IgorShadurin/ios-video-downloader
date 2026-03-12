@@ -209,3 +209,16 @@
 "Vault" = "Vault";
 
 "Download Video" = "Download Video";
+
+
+"Confirm Download Rights" = "Confirm Download Rights";
+"Before downloading, confirm that you requested this file and have permission to save it from this source." = "Before downloading, confirm that you requested this file and have permission to save it from this source.";
+"Requested URL" = "Requested URL";
+"You requested this exact URL yourself." = "You requested this exact URL yourself.";
+"This website allows you to download this file." = "This website allows you to download this file.";
+"You received approval from the owner of this domain to download this file." = "You received approval from the owner of this domain to download this file.";
+"Yes" = "Yes";
+"No" = "No";
+"You do not have permission to download this file." = "You do not have permission to download this file.";
+"All answers must be Yes to continue." = "All answers must be Yes to continue.";
+"Confirm and Download" = "Confirm and Download";

@@ -209,3 +209,16 @@
 "Vault" = "Trezor";
 
 "Download Video" = "Preuzmi Video";
+
+
+"Confirm Download Rights" = "Potvrdite prava preuzimanja";
+"Before downloading, confirm that you requested this file and have permission to save it from this source." = "Prije preuzimanja potvrdite da ste zatražili ovu datoteku i imate dopuštenje za njezino spremanje iz ovog izvora.";
+"Requested URL" = "Traženi URL";
+"You requested this exact URL yourself." = "Sami ste zatražili točan URL.";
+"This website allows you to download this file." = "Ova web stranica omogućuje vam preuzimanje ove datoteke.";
+"You received approval from the owner of this domain to download this file." = "Dobili ste odobrenje od vlasnika ove domene za preuzimanje ove datoteke.";
+"Yes" = "Da";
+"No" = "Ne";
+"You do not have permission to download this file." = "Nemate dozvolu za preuzimanje ove datoteke.";
+"All answers must be Yes to continue." = "Za nastavak svi odgovori moraju biti Da.";
+"Confirm and Download" = "Potvrdite i preuzmite";

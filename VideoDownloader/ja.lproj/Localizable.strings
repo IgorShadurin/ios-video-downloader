@@ -209,3 +209,16 @@
 "Vault" = "保管庫";
 
 "Download Video" = "ダウンロード Video";
+
+
+"Confirm Download Rights" = "ダウンロード権限の確認";
+"Before downloading, confirm that you requested this file and have permission to save it from this source." = "ダウンロードする前に、このファイルを要求したことと、このソースからファイルを保存する権限があることを確認してください。";
+"Requested URL" = "リクエストされたURL";
+"You requested this exact URL yourself." = "この正確な URL はあなた自身がリクエストしたものです。";
+"This website allows you to download this file." = "この Web サイトでは、このファイルをダウンロードできます。";
+"You received approval from the owner of this domain to download this file." = "このファイルをダウンロードするために、このドメインの所有者から承認を受けました。";
+"Yes" = "はい";
+"No" = "いいえ";
+"You do not have permission to download this file." = "このファイルをダウンロードする権限がありません。";
+"All answers must be Yes to continue." = "続行するには、すべての答えが「はい」である必要があります。";
+"Confirm and Download" = "確認してダウンロード";

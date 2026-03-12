@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Download Video and Save</string>
+	<string>Video Saver Vault</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -65,7 +65,7 @@
 		<string>zh-Hant-HK</string>
 	</array>
 	<key>CFBundleName</key>
-	<string>VideoDownloader</string>
+	<string>Video Saver Vault</string>
 	<key>CFBundlePackageType</key>
 	<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
 	<key>CFBundleShortVersionString</key>
@@ -76,6 +76,10 @@
 	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>PRIVACY_POLICY_URL</key>
+	<string>https://yumcut.com/mobile/privacy</string>
+	<key>TERMS_OF_USE_URL</key>
+	<string>https://www.apple.com/legal/internet-services/itunes/dev/stdeula/</string>
 	<key>LSSupportsOpeningDocumentsInPlace</key>
 	<true/>
 	<key>NSPhotoLibraryAddUsageDescription</key>

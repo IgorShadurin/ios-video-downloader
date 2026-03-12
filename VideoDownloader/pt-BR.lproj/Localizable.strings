@@ -209,3 +209,16 @@
 "Vault" = "Cofre";
 
 "Download Video" = "Baixar Video";
+
+
+"Confirm Download Rights" = "Confirme os direitos de download";
+"Before downloading, confirm that you requested this file and have permission to save it from this source." = "Antes de fazer o download, confirme se você solicitou este arquivo e tem permissão para salvá-lo desta fonte.";
+"Requested URL" = "URL solicitado";
+"You requested this exact URL yourself." = "Você mesmo solicitou esse URL exato.";
+"This website allows you to download this file." = "Este site permite que você baixe este arquivo.";
+"You received approval from the owner of this domain to download this file." = "Você recebeu aprovação do proprietário deste domínio para fazer download deste arquivo.";
+"Yes" = "Sim";
+"No" = "Não";
+"You do not have permission to download this file." = "Você não tem permissão para baixar este arquivo.";
+"All answers must be Yes to continue." = "Todas as respostas devem ser Sim para continuar.";
+"Confirm and Download" = "Confirme e baixe";

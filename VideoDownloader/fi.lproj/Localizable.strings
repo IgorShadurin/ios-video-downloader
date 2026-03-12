@@ -209,3 +209,16 @@
 "Vault" = "Holvi";
 
 "Download Video" = "Lataa Video";
+
+
+"Confirm Download Rights" = "Vahvista latausoikeudet";
+"Before downloading, confirm that you requested this file and have permission to save it from this source." = "Varmista ennen lataamista, että pyysit tätä tiedostoa ja että sinulla on lupa tallentaa se tästä lähteestä.";
+"Requested URL" = "Pyydetty URL-osoite";
+"You requested this exact URL yourself." = "Pyysit itse tämän tarkan URL-osoitteen.";
+"This website allows you to download this file." = "Tämän sivuston avulla voit ladata tämän tiedoston.";
+"You received approval from the owner of this domain to download this file." = "Sait tämän verkkotunnuksen omistajalta luvan ladata tämä tiedosto.";
+"Yes" = "Kyllä";
+"No" = "Ei";
+"You do not have permission to download this file." = "Sinulla ei ole lupaa ladata tätä tiedostoa.";
+"All answers must be Yes to continue." = "Kaikkien vastausten on oltava Kyllä jatkaaksesi.";
+"Confirm and Download" = "Vahvista ja lataa";

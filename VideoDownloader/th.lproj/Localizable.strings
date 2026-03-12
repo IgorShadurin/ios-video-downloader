@@ -209,3 +209,16 @@
 "Vault" = "ตู้เซฟ";
 
 "Download Video" = "ดาวน์โหลด Video";
+
+
+"Confirm Download Rights" = "ยืนยันสิทธิ์การดาวน์โหลด";
+"Before downloading, confirm that you requested this file and have permission to save it from this source." = "ก่อนที่จะดาวน์โหลด โปรดยืนยันว่าคุณได้ร้องขอไฟล์นี้และได้รับอนุญาตให้บันทึกจากแหล่งที่มานี้";
+"Requested URL" = "URL ที่ร้องขอ";
+"You requested this exact URL yourself." = "คุณขอ URL นี้ด้วยตัวเอง";
+"This website allows you to download this file." = "เว็บไซต์นี้อนุญาตให้คุณดาวน์โหลดไฟล์นี้";
+"You received approval from the owner of this domain to download this file." = "คุณได้รับการอนุมัติจากเจ้าของโดเมนนี้ให้ดาวน์โหลดไฟล์นี้";
+"Yes" = "ใช่";
+"No" = "เลขที่";
+"You do not have permission to download this file." = "คุณไม่ได้รับอนุญาตให้ดาวน์โหลดไฟล์นี้";
+"All answers must be Yes to continue." = "คำตอบทั้งหมดจะต้องเป็นใช่เพื่อดำเนินการต่อ";
+"Confirm and Download" = "ยืนยันและดาวน์โหลด";

@@ -209,3 +209,16 @@
 "Vault" = "Kho";
 
 "Download Video" = "Tải xuống Video";
+
+
+"Confirm Download Rights" = "Xác nhận quyền tải xuống";
+"Before downloading, confirm that you requested this file and have permission to save it from this source." = "Trước khi tải xuống, hãy xác nhận rằng bạn đã yêu cầu tệp này và có quyền lưu nó từ nguồn này.";
+"Requested URL" = "URL được yêu cầu";
+"You requested this exact URL yourself." = "Bạn đã tự mình yêu cầu URL chính xác này.";
+"This website allows you to download this file." = "Trang web này cho phép bạn tải xuống tập tin này.";
+"You received approval from the owner of this domain to download this file." = "Bạn đã nhận được sự chấp thuận từ chủ sở hữu tên miền này để tải xuống tệp này.";
+"Yes" = "Đúng";
+"No" = "KHÔNG";
+"You do not have permission to download this file." = "Bạn không có quyền tải xuống tập tin này.";
+"All answers must be Yes to continue." = "Tất cả các câu trả lời phải là Có để tiếp tục.";
+"Confirm and Download" = "Xác nhận và tải xuống";

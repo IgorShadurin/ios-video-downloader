@@ -209,3 +209,16 @@
 "Vault" = "Kluis";
 
 "Download Video" = "Downloaden Video";
+
+
+"Confirm Download Rights" = "Bevestig de downloadrechten";
+"Before downloading, confirm that you requested this file and have permission to save it from this source." = "Controleer voordat u gaat downloaden of u dit bestand hebt aangevraagd en toestemming hebt om het vanuit deze bron op te slaan.";
+"Requested URL" = "Gevraagde URL";
+"You requested this exact URL yourself." = "U heeft deze exacte URL zelf opgevraagd.";
+"This website allows you to download this file." = "Via deze website kunt u dit bestand downloaden.";
+"You received approval from the owner of this domain to download this file." = "U heeft toestemming gekregen van de eigenaar van dit domein om dit bestand te downloaden.";
+"Yes" = "Ja";
+"No" = "Nee";
+"You do not have permission to download this file." = "U heeft geen toestemming om dit bestand te downloaden.";
+"All answers must be Yes to continue." = "Alle antwoorden moeten Ja zijn om door te gaan.";
+"Confirm and Download" = "Bevestig en download";

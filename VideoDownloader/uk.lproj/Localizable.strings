@@ -209,3 +209,16 @@
 "Vault" = "Сховище";
 
 "Download Video" = "Завантажити Video";
+
+
+"Confirm Download Rights" = "Підтвердьте права на завантаження";
+"Before downloading, confirm that you requested this file and have permission to save it from this source." = "Перед завантаженням підтвердьте, що ви запитували цей файл і маєте дозвіл на його збереження з цього джерела.";
+"Requested URL" = "Запитана URL-адреса";
+"You requested this exact URL yourself." = "Ви самі запитували саме цю URL-адресу.";
+"This website allows you to download this file." = "Цей веб-сайт дозволяє завантажити цей файл.";
+"You received approval from the owner of this domain to download this file." = "Ви отримали дозвіл від власника цього домену на завантаження цього файлу.";
+"Yes" = "так";
+"No" = "немає";
+"You do not have permission to download this file." = "Ви не маєте дозволу на завантаження цього файлу.";
+"All answers must be Yes to continue." = "Усі відповіді мають бути «Так», щоб продовжити.";
+"Confirm and Download" = "Підтвердити та завантажити";

@@ -209,3 +209,16 @@
 "Vault" = "כספת";
 
 "Download Video" = "הורדה Video";
+
+
+"Confirm Download Rights" = "אשר את זכויות ההורדה";
+"Before downloading, confirm that you requested this file and have permission to save it from this source." = "לפני ההורדה, אשר שביקשת את הקובץ הזה ויש לך הרשאה לשמור אותו ממקור זה.";
+"Requested URL" = "כתובת אתר מבוקשת";
+"You requested this exact URL yourself." = "ביקשת את כתובת האתר המדויקת הזו בעצמך.";
+"This website allows you to download this file." = "אתר זה מאפשר לך להוריד קובץ זה.";
+"You received approval from the owner of this domain to download this file." = "קיבלת אישור מהבעלים של הדומיין הזה להוריד קובץ זה.";
+"Yes" = "כֵּן";
+"No" = "לֹא";
+"You do not have permission to download this file." = "אין לך הרשאה להוריד את הקובץ הזה.";
+"All answers must be Yes to continue." = "כל התשובות חייבות להיות כן כדי להמשיך.";
+"Confirm and Download" = "אשר והורד";

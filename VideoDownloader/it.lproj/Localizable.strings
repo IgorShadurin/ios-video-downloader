@@ -209,3 +209,16 @@
 "Vault" = "Caveau";
 
 "Download Video" = "Scarica Video";
+
+
+"Confirm Download Rights" = "Conferma i diritti di download";
+"Before downloading, confirm that you requested this file and have permission to save it from this source." = "Prima di scaricarlo, conferma di aver richiesto questo file e di avere il permesso di salvarlo da questa fonte.";
+"Requested URL" = "URL richiesto";
+"You requested this exact URL yourself." = "Hai richiesto tu stesso questo URL esatto.";
+"This website allows you to download this file." = "Questo sito Web ti consente di scaricare questo file.";
+"You received approval from the owner of this domain to download this file." = "Hai ricevuto l'approvazione dal proprietario di questo dominio per scaricare questo file.";
+"Yes" = "SÌ";
+"No" = "NO";
+"You do not have permission to download this file." = "Non hai il permesso per scaricare questo file.";
+"All answers must be Yes to continue." = "Tutte le risposte devono essere Sì per continuare.";
+"Confirm and Download" = "Conferma e scarica";

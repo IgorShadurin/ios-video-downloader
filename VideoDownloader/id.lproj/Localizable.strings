@@ -209,3 +209,16 @@
 "Vault" = "Brankas";
 
 "Download Video" = "Unduh Video";
+
+
+"Confirm Download Rights" = "Konfirmasikan Hak Unduhan";
+"Before downloading, confirm that you requested this file and have permission to save it from this source." = "Sebelum mengunduh, konfirmasikan bahwa Anda meminta file ini dan memiliki izin untuk menyimpannya dari sumber ini.";
+"Requested URL" = "URL yang diminta";
+"You requested this exact URL yourself." = "Anda sendiri yang meminta URL persis ini.";
+"This website allows you to download this file." = "Situs web ini memungkinkan Anda mengunduh file ini.";
+"You received approval from the owner of this domain to download this file." = "Anda menerima persetujuan dari pemilik domain ini untuk mendownload file ini.";
+"Yes" = "Ya";
+"No" = "TIDAK";
+"You do not have permission to download this file." = "Anda tidak memiliki izin untuk mengunduh file ini.";
+"All answers must be Yes to continue." = "Semua jawaban harus Ya untuk melanjutkan.";
+"Confirm and Download" = "Konfirmasikan dan Unduh";

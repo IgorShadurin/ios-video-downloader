@@ -209,3 +209,16 @@
 "Vault" = "Hvelv";
 
 "Download Video" = "Last ned Video";
+
+
+"Confirm Download Rights" = "Bekreft nedlastingsrettigheter";
+"Before downloading, confirm that you requested this file and have permission to save it from this source." = "Før du laster ned, bekreft at du ba om denne filen og har tillatelse til å lagre den fra denne kilden.";
+"Requested URL" = "Forespurt URL";
+"You requested this exact URL yourself." = "Du har selv bedt om denne nøyaktige nettadressen.";
+"This website allows you to download this file." = "Denne nettsiden lar deg laste ned denne filen.";
+"You received approval from the owner of this domain to download this file." = "Du har fått godkjenning fra eieren av dette domenet til å laste ned denne filen.";
+"Yes" = "Ja";
+"No" = "Ingen";
+"You do not have permission to download this file." = "Du har ikke tillatelse til å laste ned denne filen.";
+"All answers must be Yes to continue." = "Alle svar må være Ja for å fortsette.";
+"Confirm and Download" = "Bekreft og last ned";

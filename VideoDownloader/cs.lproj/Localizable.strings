@@ -209,3 +209,16 @@
 "Vault" = "Trezor";
 
 "Download Video" = "Stáhnout Video";
+
+
+"Confirm Download Rights" = "Potvrďte práva ke stažení";
+"Before downloading, confirm that you requested this file and have permission to save it from this source." = "Před stažením potvrďte, že jste si tento soubor vyžádali a máte oprávnění jej uložit z tohoto zdroje.";
+"Requested URL" = "Požadovaná adresa URL";
+"You requested this exact URL yourself." = "Tuto přesnou adresu URL jste si vyžádali sami.";
+"This website allows you to download this file." = "Tato webová stránka vám umožňuje stáhnout tento soubor.";
+"You received approval from the owner of this domain to download this file." = "Ke stažení tohoto souboru jste obdrželi souhlas vlastníka této domény.";
+"Yes" = "Ano";
+"No" = "Žádný";
+"You do not have permission to download this file." = "Ke stažení tohoto souboru nemáte oprávnění.";
+"All answers must be Yes to continue." = "Všechny odpovědi musí být Ano, chcete-li pokračovat.";
+"Confirm and Download" = "Potvrdit a stáhnout";

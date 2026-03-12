@@ -209,3 +209,16 @@
 "Vault" = "Bóveda";
 
 "Download Video" = "Descargar Video";
+
+
+"Confirm Download Rights" = "Confirmar derechos de descarga";
+"Before downloading, confirm that you requested this file and have permission to save it from this source." = "Antes de descargarlo, confirme que solicitó este archivo y que tiene permiso para guardarlo desde esta fuente.";
+"Requested URL" = "URL solicitada";
+"You requested this exact URL yourself." = "Usted mismo solicitó esta URL exacta.";
+"This website allows you to download this file." = "Este sitio web le permite descargar este archivo.";
+"You received approval from the owner of this domain to download this file." = "Recibiste la aprobación del propietario de este dominio para descargar este archivo.";
+"Yes" = "Sí";
+"No" = "No";
+"You do not have permission to download this file." = "No tienes permiso para descargar este archivo.";
+"All answers must be Yes to continue." = "Todas las respuestas deben ser Sí para continuar.";
+"Confirm and Download" = "Confirmar y descargar";

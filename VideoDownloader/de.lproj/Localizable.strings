@@ -209,3 +209,16 @@
 "Vault" = "Tresor";
 
 "Download Video" = "Download Video";
+
+
+"Confirm Download Rights" = "Bestätigen Sie die Downloadrechte";
+"Before downloading, confirm that you requested this file and have permission to save it from this source." = "Bestätigen Sie vor dem Herunterladen, dass Sie diese Datei angefordert haben und berechtigt sind, sie von dieser Quelle zu speichern.";
+"Requested URL" = "Angeforderte URL";
+"You requested this exact URL yourself." = "Sie haben genau diese URL selbst angefordert.";
+"This website allows you to download this file." = "Auf dieser Website können Sie diese Datei herunterladen.";
+"You received approval from the owner of this domain to download this file." = "Sie haben vom Inhaber dieser Domain die Genehmigung zum Herunterladen dieser Datei erhalten.";
+"Yes" = "Ja";
+"No" = "NEIN";
+"You do not have permission to download this file." = "Sie haben keine Berechtigung zum Herunterladen dieser Datei.";
+"All answers must be Yes to continue." = "Alle Antworten müssen „Ja“ lauten, um fortfahren zu können.";
+"Confirm and Download" = "Bestätigen und herunterladen";

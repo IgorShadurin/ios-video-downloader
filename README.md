@@ -3,7 +3,10 @@
 A focused iOS app for downloading supported videos from direct URLs, managing local storage, and gating extra usage behind a paywall.
 
 ## Features
-- Direct-link input only (`mp4`, `mov`, `m4v`, `3gp`, `3g2`).
+- Direct-link input for supported file types (`mp4`, `mov`, `m4v`, `3gp`, `3g2`).
+- Rights confirmation sheet before each download:
+  - Shows the requested URL, trimmed to 200 characters
+  - Requires three explicit `Yes` answers before the app starts downloading
 - One free download per day for non-subscribers.
 - StoreKit paywall with:
   - Weekly subscription
@@ -20,6 +23,24 @@ A focused iOS app for downloading supported videos from direct URLs, managing lo
 - `org.icorpvideo.VideoDownloader.weekly`
 - `org.icorpvideo.VideoDownloader.monthly`
 - `org.icorpvideo.VideoDownloader.lifetime`
+
+## App Review Compliance Note
+Guideline 5.2.3 is not satisfied by a generic third-party media downloader on its own. The current binary no longer hard-restricts downloads to one approved domain. Instead, it requires the user to complete a rights confirmation sheet before every transfer.
+
+How the current binary works:
+- `SupportedFormatResolver` validates the URL scheme and file extension.
+- When the user taps `Download`, the app opens a modal confirmation flow instead of starting the network transfer immediately.
+- The modal shows the exact requested URL, trimmed to 200 characters for readability.
+- The user must answer `Yes` to all three statements before `Confirm and Download` becomes available:
+  - They requested this exact URL themselves.
+  - The website allows them to download the file.
+  - They received approval from the owner of the domain to download the file.
+- If any answer is `No`, the app shows a warning that the user does not have permission to download the file and the transfer remains blocked.
+
+Important limitation:
+- This is a user attestation flow, not proof of license ownership.
+- It may reduce accidental misuse, but by itself it does not prove legal rights to Apple or to a third-party rights holder.
+- If you resubmit, App Review may still require documentary proof that the app is used only for authorized downloads.
 
 ## Showcase
 Click any preview to open the high-quality screenshot.

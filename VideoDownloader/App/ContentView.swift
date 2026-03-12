@@ -4,6 +4,31 @@ import SwiftUI
 import UIKit
 
 struct ContentView: View {
+    private enum DownloadRightsChoice: Hashable {
+        case unanswered
+        case yes
+        case no
+    }
+
+    private struct DownloadRightsFormState {
+        var urlText: String = ""
+        var requestedURLChoice: DownloadRightsChoice = .unanswered
+        var websitePermissionChoice: DownloadRightsChoice = .unanswered
+        var ownerApprovalChoice: DownloadRightsChoice = .unanswered
+
+        var hasRejectedAnswer: Bool {
+            requestedURLChoice == .no || websitePermissionChoice == .no || ownerApprovalChoice == .no
+        }
+
+        var allConfirmed: Bool {
+            requestedURLChoice == .yes && websitePermissionChoice == .yes && ownerApprovalChoice == .yes
+        }
+
+        var displayURL: String {
+            urlText.truncatedForConfirmation(limit: 200)
+        }
+    }
+
     private enum LibraryTab {
         case downloads
         case vault
@@ -39,6 +64,8 @@ struct ContentView: View {
     @State private var renamingVideo: StoredVideo?
     @State private var showRenameSheet = false
     @State private var selectedPaywallPlanID: String?
+    @State private var isDownloadRightsSheetPresented = false
+    @State private var downloadRightsForm = DownloadRightsFormState()
     @State private var showVaultSheet = false
     @State private var showForgetVaultConfirmation = false
     @State private var filesExportURL: URL?
@@ -93,6 +120,9 @@ struct ContentView: View {
         }
         .sheet(isPresented: $showRenameSheet) {
             renameSheet
+        }
+        .sheet(isPresented: $isDownloadRightsSheetPresented) {
+            downloadRightsSheet
         }
         .sheet(item: $selectedVideo) { item in
             VideoPlayer(player: item.player)
@@ -275,9 +305,7 @@ struct ContentView: View {
                 .textInputAutocapitalization(.never)
                 .onSubmit {
                     if viewModel.canDownload {
-                        Task {
-                            await viewModel.downloadVideo()
-                        }
+                        presentDownloadRightsSheet()
                     }
                 }
                 .autocorrectionDisabled()
@@ -326,9 +354,7 @@ struct ContentView: View {
                     .buttonStyle(.plain)
                 } else {
                     Button {
-                        Task {
-                            await viewModel.downloadVideo()
-                        }
+                        presentDownloadRightsSheet()
                     } label: {
                         Label(L10n.tr("Download"), systemImage: "arrow.down.circle.fill")
                             .font(.headline.weight(.semibold))
@@ -381,6 +407,116 @@ struct ContentView: View {
         .frame(maxWidth: .infinity)
         .background(cardBackground)
         .clipShape(RoundedRectangle(cornerRadius: 16))
+    }
+
+    private var downloadRightsSheet: some View {
+        NavigationStack {
+            VStack(alignment: .leading, spacing: 12) {
+                Text(L10n.tr("Before downloading, confirm that you requested this file and have permission to save it from this source."))
+                    .font(.footnote)
+                    .foregroundStyle(secondaryText)
+
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(L10n.tr("Requested URL"))
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(secondaryText)
+
+                    Text(downloadRightsForm.displayURL)
+                        .font(.system(.caption, design: .monospaced))
+                        .foregroundStyle(.primary)
+                        .textSelection(.enabled)
+                        .lineLimit(2)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 8)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                .fill(secondaryBackground)
+                        )
+                }
+
+                downloadRightsQuestionRow(
+                    title: L10n.tr("You requested this exact URL yourself."),
+                    selection: $downloadRightsForm.requestedURLChoice
+                )
+
+                downloadRightsQuestionRow(
+                    title: L10n.tr("This website allows you to download this file."),
+                    selection: $downloadRightsForm.websitePermissionChoice
+                )
+
+                downloadRightsQuestionRow(
+                    title: L10n.tr("You received approval from the owner of this domain to download this file."),
+                    selection: $downloadRightsForm.ownerApprovalChoice
+                )
+
+                if downloadRightsForm.hasRejectedAnswer {
+                    Text(L10n.tr("You do not have permission to download this file."))
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.red)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                } else if !downloadRightsForm.allConfirmed {
+                    Text(L10n.tr("All answers must be Yes to continue."))
+                        .font(.caption)
+                        .foregroundStyle(secondaryText)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+
+                Spacer(minLength: 0)
+
+                Button {
+                    confirmDownloadRights()
+                } label: {
+                    Label(L10n.tr("Confirm and Download"), systemImage: "checkmark.shield.fill")
+                        .font(.headline.weight(.semibold))
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 48)
+                        .background(
+                            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                .fill(downloadRightsForm.allConfirmed ? accent : Color.gray.opacity(0.25))
+                        )
+                        .foregroundStyle(downloadRightsForm.allConfirmed ? .white : .secondary)
+                }
+                .buttonStyle(.plain)
+                .disabled(!downloadRightsForm.allConfirmed)
+            }
+            .padding(16)
+            .background(background.ignoresSafeArea())
+            .navigationTitle(L10n.tr("Confirm Download Rights"))
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(L10n.tr("Cancel")) {
+                        isDownloadRightsSheetPresented = false
+                    }
+                }
+            }
+        }
+        .presentationDetents([.height(500)])
+        .presentationDragIndicator(.visible)
+    }
+
+    private func downloadRightsQuestionRow(
+        title: String,
+        selection: Binding<DownloadRightsChoice>
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.footnote.weight(.semibold))
+                .foregroundStyle(.primary)
+                .fixedSize(horizontal: false, vertical: true)
+
+            Picker(title, selection: selection) {
+                Text(L10n.tr("Yes")).tag(DownloadRightsChoice.yes)
+                Text(L10n.tr("No")).tag(DownloadRightsChoice.no)
+            }
+            .labelsHidden()
+            .pickerStyle(.segmented)
+            .tint(accent)
+        }
+        .padding(12)
+        .background(cardBackground)
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
     }
 
     private var downloadsSection: some View {
@@ -532,11 +668,6 @@ struct ContentView: View {
                                         } label: {
                                             Label(L10n.tr("Unhide"), systemImage: "eye")
                                         }
-                                    }
-                                    Button {
-                                        openCompanionCompressorApp()
-                                    } label: {
-                                        Label(L10n.tr("Compress"), systemImage: "arrow.up.right.square")
                                     }
                                     Menu {
                                         Button {
@@ -1390,10 +1521,6 @@ struct ContentView: View {
         URL(string: "https://apps.apple.com/account/subscriptions")
     }
 
-    private var companionCompressorAppStoreURL: URL? {
-        URL(string: "itms-apps://itunes.apple.com/app/id6759647731")
-    }
-
     @ViewBuilder
     private var manageSubscriptionsInlineButton: some View {
         Button {
@@ -1426,11 +1553,6 @@ struct ContentView: View {
 
     private func openManageSubscriptions() {
         guard let url = manageSubscriptionsURL else { return }
-        UIApplication.shared.open(url)
-    }
-
-    private func openCompanionCompressorApp() {
-        guard let url = companionCompressorAppStoreURL else { return }
         UIApplication.shared.open(url)
     }
 
@@ -1566,6 +1688,32 @@ struct ContentView: View {
 
     private func surfaceTone(_ opacity: Double) -> Color {
         colorScheme == .dark ? Color(red: 0.08, green: 0.11, blue: 0.18) : Color(red: 0.95, green: 0.96, blue: 1.0)
+    }
+
+    private func presentDownloadRightsSheet() {
+        guard viewModel.validateSource() != nil, let sourceURL = viewModel.resolverURL else {
+            return
+        }
+
+        downloadRightsForm = DownloadRightsFormState(urlText: sourceURL.absoluteString)
+        isDownloadRightsSheetPresented = true
+    }
+
+    private func confirmDownloadRights() {
+        guard downloadRightsForm.allConfirmed else { return }
+        isDownloadRightsSheetPresented = false
+
+        Task {
+            await viewModel.downloadVideo()
+        }
+    }
+}
+
+private extension String {
+    func truncatedForConfirmation(limit: Int) -> String {
+        guard count > limit else { return self }
+        let prefixCount = max(0, limit - 1)
+        return String(prefix(prefixCount)) + "…"
     }
 }
 
